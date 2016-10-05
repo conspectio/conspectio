@@ -4,28 +4,7 @@ socket.on('connect', () => {
   
 });
 
-
-window.URL = window.URL || window.webkitURL;
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
-console.log('navigator', navigator, 'getusermedia', navigator.getUserMedia);
-console.log('windowurl', window.URL);
-var video1 = $('#broadcastStream');
-
-if(navigator.getUserMedia) {
-  navigator.getUserMedia({video: true, audio: false}, (stream) => {
-    console.log('stream',stream);
-
-    // var videoTracks = stream.getVideoTracks();
-    // window.stream = stream;
-    // video.srcObject = stream;
-    video1.src = window.URL.createObjectURL(stream);
-    console.log('videosrc', video1.src);
-  }, (err) =>{
-    if (err) alert('unable to access camera');
-  });
-}
-
+var globalStream;
 sendEventTag = () => {
   let eventTag = $('#eventTag').val();
 
@@ -34,35 +13,31 @@ sendEventTag = () => {
     $('#stopButton').prop('disabled', false);
     socket.emit('sendEventTag', eventTag);
 
+    var video = $('#broadcastStream')[0];
+     
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+     
+    if (navigator.getUserMedia) {       
+        navigator.getUserMedia({video: true, audio: false}, handleVideo, videoError);
+    }
+     
+    function handleVideo(stream) {
+      globalStream = stream;
+      video.src = window.URL.createObjectURL(stream);
+    }
+     
+    function videoError(e) {
+        // do something
+        console.log('videoerror function', e);
+    }
 
-
-    //shimming - grabs the appropriate getUserMedia depending on the browser
-    // window.URL = window.URL || window.webkitURL;
-    // navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
-    // console.log('navigator', navigator, 'getusermedia', navigator.getUserMedia);
-    // console.log('windowurl', window.URL);
-    // var video = $('#broadcastStream');
-
-    // if(navigator.getUserMedia) {
-    //   navigator.getUserMedia({video: true, audio: false}, (stream) => {
-    //     console.log('stream',stream);
-
-    //     // var videoTracks = stream.getVideoTracks();
-    //     // window.stream = stream;
-    //     // video.srcObject = stream;
-    //     video.src = window.URL.createObjectURL(stream);
-    //     console.log('videosrc', video.src);
-    //   }, (err) =>{
-    //     if (err) alert('unable to access camera');
-    //   });
-    // }
   } else {
     alert('please enter a tag name to start streaming');
   }
 };
 
 stopStream = () => {
+  globalStream.getTracks()[0].stop();
   let eventTag = $('#eventTag').val();
   $('#startButton').prop('disabled', false);
   $('#stopButton').prop('disabled', true);
