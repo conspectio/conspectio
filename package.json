@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tests/socket.spec.js"
   },
   "repository": {
     "type": "git",
@@ -18,9 +18,12 @@
   },
   "homepage": "https://github.com/productdana/conspectio#readme",
   "dependencies": {
+    "chai": "^3.5.0",
     "express": "^4.14.0",
+    "mocha": "^3.1.0",
     "path": "^0.12.7",
     "simple-peer": "^6.0.7",
-    "socket.io": "^1.4.8"
+    "socket.io": "^1.4.8",
+    "socket.io-client": "^1.4.8"
   }
 }
