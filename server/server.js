@@ -14,6 +14,9 @@ app.use(express.static('client'));
 var eventTracker = {};
 
 io.on('connection', (socket) => {
+  //echo test
+  socket.emit('echo', 'server side socket!');
+  
   console.log('socket connected', socket.id);
 
   //listens for event tag from broadcaster
@@ -30,7 +33,10 @@ io.on('connection', (socket) => {
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
     } 
     console.log('eventTracker:', eventTracker);
-  });
+  })
+
+
+
 
   //listens for broadcaster when they stop streaming
   socket.on('removeBroadcaster', (eventTag) => {
@@ -60,7 +66,7 @@ io.on('connection', (socket) => {
     console.log('broadcastURL', broadcastURL);
     socket.emit('sendBroadcastURL', broadcastURL);
   });
-});
+})
 
 
 
