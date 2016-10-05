@@ -1,6 +1,6 @@
 const socket = io();
 socket.on('connect', () => {
-  console.log('viewer socket connected', socket.id);
+  console.log('event socket connected', socket.id);
   socket.emit('getEventList');
 
   socket.on('sendEventList', (eventList) => {

@@ -24,6 +24,7 @@ io.on('connection', (socket) => {
         broadcasters: {}, 
         viewers: {}  
       };
+      //go back and change value of socket.id to null?
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
     } else {
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
@@ -44,6 +45,20 @@ io.on('connection', (socket) => {
   //listens for eventList request from viewer
   socket.on('getEventList', () => {
     socket.emit('sendEventList', Object.keys(eventTracker));
+  });
+
+  //listen for broadcastURL from broadcaster
+  socket.on('storeBroadcastURL', (broadcastURL, eventTag) => {
+    eventTracker[eventTag].broadcasters[socket.id] = broadcastURL;
+    console.log('eventTracker', eventTracker);
+  });
+
+  socket.on('getBroadcastURL', (eventTag) => {
+
+    var broadcastURLKey = Object.keys(eventTracker[eventTag].broadcasters)[0];
+    var broadcastURL = eventTracker[eventTag].broadcasters[broadcastURLKey];
+    console.log('broadcastURL', broadcastURL);
+    socket.emit('sendBroadcastURL', broadcastURL);
   });
 });
 
