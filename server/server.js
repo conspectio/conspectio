@@ -26,7 +26,7 @@ io.on('connection', (socket) => {
       };
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
     } else {
-      eventTracker[eventTag].broadcasters.push(socket.id);
+      eventTracker[eventTag].broadcasters[socket.id] = socket.id;
     } 
     console.log('eventTracker:', eventTracker);
   });
@@ -39,6 +39,11 @@ io.on('connection', (socket) => {
       delete eventTracker[eventTag];
     }
     console.log('eventTracker',eventTracker);
+  });
+
+  //listens for eventList request from viewer
+  socket.on('getEventList', () => {
+    socket.emit('sendEventList', Object.keys(eventTracker));
   });
 });
 
