@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Record Stream!</title>
+	<title>Start Stream!</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
   <script src="http://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>
 </head>
 <body>
-	<a href = 'index.html'><button>Home</button></a>
+	<div>
+    <a href = 'index.html'><button>Home</button></a>
+  </div>
 
+  <div id = 'videoContainer'>
+    <video id = 'broadcastStream' autoplay></video>
+  </div>
+  
+  <div>
     <input id = 'eventTag' type = 'text' placeholder = 'tag your stream here'>
   	<input id = 'startButton' type = 'submit' value = 'start' onclick = 'sendEventTag()'>
   	<input id = 'stopButton' type = 'submit' value = 'stop' onclick = 'stopStream()' disabled>
-
+  </div>
 
   <script src='/socket.io/socket.io.js'></script>
   <script type="text/javascript" src="broadcast.js"></script>
