@@ -22,8 +22,17 @@ sendEventTag = () => {
     }
      
     function handleVideo(stream) {
+      let eventTag = $('#eventTag').val();
       globalStream = stream;
       video.src = window.URL.createObjectURL(stream);
+      var broadcastURL = window.URL.createObjectURL(stream);
+      console.log('FIRSTBLOB', broadcastURL);
+      socket.emit('storeBroadcastURL', broadcastURL, eventTag);
+      // var peerBroadcaster = new SimplePeer({
+      //   initiator: true,
+      //   stream: stream
+      // });
+      // peerBroadcaster.on('')
     }
      
     function videoError(e) {
