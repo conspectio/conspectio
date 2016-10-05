@@ -1,10 +1,45 @@
+var globalStream;
+var broadcasterPeer;
+
 const socket = io();
 socket.on('connect', () => {
   console.log('broadcaster socket connected', socket.id);
   
+  socket.on('initiateConnection', (viewerId) => {
+    console.log('viewer ', viewerId, ' wants to connect');
+
+    if(broadcasterPeer === undefined) {
+      // instantiate broadcasterPeer as initiator
+      broadcasterPeer = new SimplePeer({initiator: true, stream: globalStream});
+
+      broadcasterPeer.on('signal', (data) => {
+        console.log('broadcasterPeer on signal');
+
+        // emit message to server to pass on to viewer
+        socket.emit('signal', viewerId, {peerId: socket.id, data: data});
+
+      });
+
+      broadcasterPeer.on('error', function(e) {
+        console.log('Inside broadcaster, Error sending connection:', e);
+      });
+
+      broadcasterPeer.on('connect', function () {
+        console.log('broadcasterPeer connect');
+        //broadcasterPeer.send('hey viewer, how is it going?')
+      });
+    }
+  });
+
+  socket.on('signal', (peerObj) => {
+    if(broadcasterPeer) {
+      console.log('broadcasterPeer receiving signal');
+      broadcasterPeer.signal(peerObj.data);
+    }  
+  });
+
 });
 
-var globalStream;
 sendEventTag = () => {
   let eventTag = $('#eventTag').val();
 
@@ -25,9 +60,9 @@ sendEventTag = () => {
       let eventTag = $('#eventTag').val();
       globalStream = stream;
       video.src = window.URL.createObjectURL(stream);
-      var broadcastURL = window.URL.createObjectURL(stream);
-      console.log('FIRSTBLOB', broadcastURL);
-      socket.emit('storeBroadcastURL', broadcastURL, eventTag);
+      // var broadcastURL = window.URL.createObjectURL(stream);
+      // console.log('FIRSTBLOB', broadcastURL);
+      // socket.emit('storeBroadcastURL', broadcastURL, eventTag);
       // var peerBroadcaster = new SimplePeer({
       //   initiator: true,
       //   stream: stream

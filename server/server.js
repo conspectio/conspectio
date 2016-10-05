@@ -27,10 +27,10 @@ io.on('connection', (socket) => {
         broadcasters: {}, 
         viewers: {}  
       };
-      //go back and change value of socket.id to null?
-      eventTracker[eventTag].broadcasters[socket.id] = socket.id;
+
+      eventTracker[eventTag].broadcasters[socket.id] = socket; // save ref to this socket obj
     } else {
-      eventTracker[eventTag].broadcasters[socket.id] = socket.id;
+      eventTracker[eventTag].broadcasters[socket.id] = socket; // save ref to this socket obj
     } 
     console.log('eventTracker:', eventTracker);
   })
@@ -53,20 +53,42 @@ io.on('connection', (socket) => {
     socket.emit('sendEventList', Object.keys(eventTracker));
   });
 
+  // listens for initiate view request from viewer
+  socket.on('initiateView', (eventTag) => {
+    // add this viewer socket to eventTracker
+    eventTracker[eventTag].viewers[socket.id] = socket; // save ref to this socket obj
+    console.log('inside initiateView', eventTracker);
+
+    // send message to broadcaster that a viewer wants to connected
+    var broadcasterSocketId = Object.keys(eventTracker[eventTag].broadcasters)[0]; // for now, pick the 1st broadcaster for this eventTag
+    console.log('broadcasterSocketId', broadcasterSocketId);
+
+    // emit a message to broadcaster to initiate connection
+    io.to(broadcasterSocketId).emit('initiateConnection', socket.id);
+
+  });
+
+  socket.on('signal', (toId, peerObj) => {
+    console.log('inside signal', toId);
+    // send the peerObj to the peerId
+    io.to(toId).emit('signal', peerObj);
+  });
+
   //listen for broadcastURL from broadcaster
-  socket.on('storeBroadcastURL', (broadcastURL, eventTag) => {
-    eventTracker[eventTag].broadcasters[socket.id] = broadcastURL;
-    console.log('eventTracker', eventTracker);
-  });
+  // socket.on('storeBroadcastURL', (broadcastURL, eventTag) => {
+  //   eventTracker[eventTag].broadcasters[socket.id] = broadcastURL;
+  //   console.log('eventTracker', eventTracker);
+  // });
 
-  socket.on('getBroadcastURL', (eventTag) => {
+  // socket.on('getBroadcastURL', (eventTag) => {
 
-    var broadcastURLKey = Object.keys(eventTracker[eventTag].broadcasters)[0];
-    var broadcastURL = eventTracker[eventTag].broadcasters[broadcastURLKey];
-    console.log('broadcastURL', broadcastURL);
-    socket.emit('sendBroadcastURL', broadcastURL);
-  });
-})
+  //   var broadcastURLKey = Object.keys(eventTracker[eventTag].broadcasters)[0];
+  //   var broadcastURL = eventTracker[eventTag].broadcasters[broadcastURLKey];
+  //   console.log('broadcastURL', broadcastURL);
+  //   socket.emit('sendBroadcastURL', broadcastURL);
+  // });
+});
+
 
 
 
