@@ -103,6 +103,7 @@ io.on('connection', (socket) => {
       }
     }
   });
+});
 
 http.listen(3030, function(){
 	console.log('listening on 3000');
