@@ -102,7 +102,7 @@ io.on('connection', (socket) => {
         }
       } 
       else if (eventTracker[key].viewers[socket.id]){
-        console.log('viewer socket disconnected');
+        delete eventTracker[key].viewers[socket.id];
       }
     }
   });
