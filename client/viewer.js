@@ -33,6 +33,13 @@ socket.on('connect', () => {
       pc.addIceCandidate(new RTCIceCandidate(message.candidate));
     }
   });
+   
+  //redirect viewer to events page if there are no more broadcasters streaming their event
+  socket.on('redirectToEvents', (destination) => {
+    console.log('redirecting viewer to events page');
+    window.location.href = destination;
+  });
+  
 });
 
 createPeerConnection = () => {
