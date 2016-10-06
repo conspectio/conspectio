@@ -87,14 +87,15 @@ io.on('connection', (socket) => {
         delete eventTracker[eventTag].broadcasters[socket.id];
         console.log('eventTracker[eventTag]', eventTracker[eventTag]);
         if(Object.keys(eventTracker[eventTag].broadcasters).length === 0){
+          
           console.log('no more broadcasters for this event');
           if (Object.keys(eventTracker[eventTag].viewers).length){
             for (var viewer in eventTracker[eventTag].viewers){
               //redirect viewers to events.html
-              console.log('viewer is:', viewer);
+              
               var destination = './events.html';
               io.to(viewer).emit('redirectToEvents', destination);
-              console.log('in for loop');
+              delete eventTracker[eventTag];
             }
           }
           
