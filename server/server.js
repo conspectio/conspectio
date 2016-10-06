@@ -68,11 +68,17 @@ io.on('connection', (socket) => {
 
   });
 
-  socket.on('signal', (toId, peerObj) => {
+  socket.on('signal', (toId, message) => {
     console.log('inside signal', toId);
     // send the peerObj to the peerId
-    io.to(toId).emit('signal', peerObj);
+    io.to(toId).emit('signal', socket.id, message);
   });
+
+  // socket.on('signal', (toId, peerObj) => {
+  //   console.log('inside signal', toId);
+  //   // send the peerObj to the peerId
+  //   io.to(toId).emit('signal', peerObj);
+  // });
 
   //listen for broadcastURL from broadcaster
   // socket.on('storeBroadcastURL', (broadcastURL, eventTag) => {
