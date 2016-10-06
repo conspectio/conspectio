@@ -48,6 +48,7 @@ createPeerConnection = () => {
     pc.onicecandidate = handleIceCandidate;
     pc.onaddstream = handleRemoteStreamAdded;
     pc.onremovestream = handleRemoteStreamRemoved;
+    pc.oniceconnectionstatechange = handleIceConnectionChange;
   } catch(e) {
     console.log('Failed to create RTCPeerConnetion: ', e.message);
     return;
@@ -70,13 +71,25 @@ handleIceCandidate = (event) => {
   }
 };
 
+handleIceConnectionChange = () => {
+  console.log('inside handleIceCandidateDisconnect', pc.iceConnectionState);
+  if(pc.iceConnectionState === 'disconnected') {
+    console.log('inside pc.onIceConnectionState')
+    pc.close();
+  }
+}
+
 handleRemoteStreamAdded = (event) => {
   console.log('got a stream from broadcaster');
   // got remote video stream, now let's show it in a video tag
-  var video = $('#broadcast1')[0];
-  video.src = window.URL.createObjectURL(event.stream)
-  globalStream = event.stream;
-  video.play()
+  var video = $('<video class="newVideo"></video>').attr(
+    {
+      'src': window.URL.createObjectURL(event.stream),
+      'autoplay': true
+    });
+  $('#videosDiv').append(video);
+  // globalStream = event.stream;
+  //video.play();
 };
 
 handleRemoteStreamRemoved = (event) => {
