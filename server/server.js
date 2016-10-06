@@ -28,9 +28,12 @@ io.on('connection', (socket) => {
         viewers: {}  
       };
 
-      eventTracker[eventTag].broadcasters[socket.id] = socket; // save ref to this socket obj
+      eventTracker[eventTag].broadcasters[socket.id] = socket.id;
     } else {
-      eventTracker[eventTag].broadcasters[socket.id] = socket; // save ref to this socket obj
+      eventTracker[eventTag].broadcasters[socket.id] = socket.id;
+      for(var viewer in eventTracker[eventTag].viewers) {
+        io.to(socket.id).emit('initiateConnection', viewer);
+      }
     } 
     console.log('eventTracker:', eventTracker);
   })

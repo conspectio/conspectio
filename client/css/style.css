@@ -17,6 +17,10 @@
   /*height: 100%;*/
 }
 
+.newVideo {
+  border: 1px solid black;
+  width: 30%;
+}
 
 #broadcast1 {
   border: 1px solid black;
