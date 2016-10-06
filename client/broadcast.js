@@ -1,5 +1,8 @@
+// chrome://webrtc-internals
 var globalStream;
 var broadcasterPeer;
+var currViewerId;
+var pc;
 
 const socket = io();
 socket.on('connect', () => {
@@ -7,40 +10,59 @@ socket.on('connect', () => {
   
   socket.on('initiateConnection', (viewerId) => {
     console.log('viewer ', viewerId, ' wants to connect');
+    currViewerId = viewerId;
+    createPeerConnection();
 
-    if(broadcasterPeer === undefined) {
-      // instantiate broadcasterPeer as initiator
-      broadcasterPeer = new SimplePeer({initiator: true, stream: globalStream});
-
-      broadcasterPeer.on('signal', (data) => {
-        console.log('broadcasterPeer on signal');
-
-        // emit message to server to pass on to viewer
-        socket.emit('signal', viewerId, {peerId: socket.id, data: data});
-
+    pc.createOffer((offer) => {
+      send({
+        type: "offer",
+        offer: offer
       });
+      pc.setLocalDescription(new RTCSessionDescription(offer));
+    }, (error) => {
+      console.log('Error with creating broadcaster offer', error);
+    });
+  });
 
-      broadcasterPeer.on('error', function(e) {
-        console.log('Inside broadcaster, Error sending connection:', e);
-      });
+  socket.on('signal', (fromId, message) => {
+    currViewerId = fromId;
 
-      broadcasterPeer.on('connect', function () {
-        console.log('broadcasterPeer connect');
-        //broadcasterPeer.send('hey viewer, how is it going?')
-      });
+    if(message.type === 'answer') {
+      pc.setRemoteDescription(new RTCSessionDescription(message.answer));
+    } else if(message.type === 'candidate') {
+      pc.addIceCandidate(new RTCIceCandidate(message.candidate));
     }
+
   });
-
-  socket.on('signal', (peerObj) => {
-    if(broadcasterPeer) {
-      console.log('broadcasterPeer receiving signal');
-      broadcasterPeer.signal(peerObj.data);
-    }  
-  });
-
-
 
 });
+
+createPeerConnection = () => {
+  try {
+    pc = new RTCPeerConnection(null);
+    pc.onicecandidate = handleIceCandidate;
+    pc.addStream(globalStream);
+  } catch(e) {
+    console.log('Failed to create RTCPeerConnetion: ', e.message);
+    return;
+  }
+};
+
+send = (message) => {
+  if(currViewerId) {
+    socket.emit('signal', currViewerId, message);
+  }
+};
+
+handleIceCandidate = (event) => {
+  console.log('handleIceCandidate event: ', event);
+  if(event.candidate) {
+    send({
+      type: "candidate",
+      candidate: event.candidate
+    });
+  }
+};
 
 sendEventTag = () => {
   let eventTag = $('#eventTag').val();
@@ -62,14 +84,6 @@ sendEventTag = () => {
       let eventTag = $('#eventTag').val();
       globalStream = stream;
       video.src = window.URL.createObjectURL(stream);
-      // var broadcastURL = window.URL.createObjectURL(stream);
-      // console.log('FIRSTBLOB', broadcastURL);
-      // socket.emit('storeBroadcastURL', broadcastURL, eventTag);
-      // var peerBroadcaster = new SimplePeer({
-      //   initiator: true,
-      //   stream: stream
-      // });
-      // peerBroadcaster.on('')
     }
      
     function videoError(e) {

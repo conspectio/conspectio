@@ -35,9 +35,6 @@ io.on('connection', (socket) => {
     console.log('eventTracker:', eventTracker);
   })
 
-
-
-
   //listens for broadcaster when they stop streaming
   socket.on('removeBroadcaster', (eventTag) => {
     delete eventTracker[eventTag].broadcasters[socket.id];
@@ -69,10 +66,10 @@ io.on('connection', (socket) => {
 
   });
 
-  socket.on('signal', (toId, peerObj) => {
+  socket.on('signal', (toId, message) => {
     console.log('inside signal', toId);
     // send the peerObj to the peerId
-    io.to(toId).emit('signal', peerObj);
+    io.to(toId).emit('signal', socket.id, message);
   });
 
   //listens for disconnection
@@ -106,24 +103,6 @@ io.on('connection', (socket) => {
       }
     }
   });
-
-  //listen for broadcastURL from broadcaster
-  // socket.on('storeBroadcastURL', (broadcastURL, eventTag) => {
-  //   eventTracker[eventTag].broadcasters[socket.id] = broadcastURL;
-  //   console.log('eventTracker', eventTracker);
-  // });
-
-  // socket.on('getBroadcastURL', (eventTag) => {
-
-  //   var broadcastURLKey = Object.keys(eventTracker[eventTag].broadcasters)[0];
-  //   var broadcastURL = eventTracker[eventTag].broadcasters[broadcastURLKey];
-  //   console.log('broadcastURL', broadcastURL);
-  //   socket.emit('sendBroadcastURL', broadcastURL);
-  // });
-});
-
-
-
 
 http.listen(3030, function(){
 	console.log('listening on 3000');
