@@ -52,14 +52,21 @@ socket.on('connect', () => {
         console.log('got a stream from broadcaster');
         // got remote video stream, now let's show it in a video tag
         var video = $('#broadcast1')[0];
-        video.src = window.URL.createObjectURL(stream)
-        video.play()
-      })
+        video.src = window.URL.createObjectURL(stream);
+        video.play();
+      });
 
       // viewerPeer.on('data', (msg) => {
       //   console.log('got a message from broadcaster: ' + msg);
       // });
     }
+   
+  //redirect viewer to events page if there are no more broadcasters streaming their event
+  socket.on('redirectToEvents', (destination) => {
+    console.log('redirecting viewer to events page');
+    window.location.href = destination;
+  });
+
     // var viewerPeer = new SimplePeer({initiator: false});
 
     // viewerPeer.on('signal', (data) => {
