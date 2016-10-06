@@ -53,16 +53,18 @@ io.on('connection', (socket) => {
   // listens for initiate view request from viewer
   socket.on('initiateView', (eventTag) => {
     // add this viewer socket to eventTracker
-    eventTracker[eventTag].viewers[socket.id] = socket.id; // save ref to this socket obj
-    console.log('inside initiateView', eventTracker);
+    if(eventTracker[eventTag]) {
+      eventTracker[eventTag].viewers[socket.id] = socket.id; // save ref to this socket obj
+      console.log('inside initiateView', eventTracker);
 
-    // send message to broadcaster that a viewer wants to connected
-    var broadcasterSocketId = Object.keys(eventTracker[eventTag].broadcasters)[0]; // for now, pick the 1st broadcaster for this eventTag
-    console.log('broadcasterSocketId', broadcasterSocketId);
+      // send message to broadcaster that a viewer wants to connected
+      var broadcasterSocketId = Object.keys(eventTracker[eventTag].broadcasters)[0]; // for now, pick the 1st broadcaster for this eventTag
+      console.log('broadcasterSocketId', broadcasterSocketId);
 
-    // server emits a message to broadcaster to initiate connection
-    // socket.id is from viewer
-    io.to(broadcasterSocketId).emit('initiateConnection', socket.id);
+      // server emits a message to broadcaster to initiate connection
+      // socket.id is from viewer
+      io.to(broadcasterSocketId).emit('initiateConnection', socket.id);
+    }
 
   });
 
@@ -105,7 +107,7 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(3030, function(){
+http.listen(3000, function(){
 	console.log('listening on 3000');
 });
 

@@ -42,6 +42,7 @@ createPeerConnection = () => {
     pc = new RTCPeerConnection(null);
     pc.onicecandidate = handleIceCandidate;
     pc.addStream(globalStream);
+    pc.oniceconnectionstatechange = handleIceCandidateDisconnect;
   } catch(e) {
     console.log('Failed to create RTCPeerConnetion: ', e.message);
     return;
@@ -63,6 +64,15 @@ handleIceCandidate = (event) => {
     });
   }
 };
+
+handleIceCandidateDisconnect = () => {
+    console.log('inside handleIceCandidateDisconnect', pc.iceConnectionState)
+
+  if(pc.iceConnectionState === 'disconnected') {
+    console.log('inside pc.onIceConnectionState')
+    pc.close();
+  }
+}
 
 sendEventTag = () => {
   let eventTag = $('#eventTag').val();
