@@ -4,6 +4,23 @@ var broadcasterPeer;
 var currViewerId;
 var pc;
 
+// class ConspectioPC {
+//   constructor(viewerId) {
+//     this.viewerId = viewerId;
+//   }
+
+
+// }
+
+//after initiateConnection, we want to create a RTCPeerConnection for viewer.
+//pc.onicecandidate = handleIceCandidate;
+//pc.addStream(globalStream);
+//pc.oniceconnectionstatechange = handleIceConnectionChange;
+//send message to appropriate user???????????
+//globalStream should be available
+
+
+
 const socket = io();
 socket.on('connect', () => {
   console.log('broadcaster socket connected', socket.id);

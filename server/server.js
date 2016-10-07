@@ -60,15 +60,16 @@ io.on('connection', (socket) => {
       eventTracker[eventTag].viewers[socket.id] = socket.id; // save ref to this socket obj
       console.log('inside initiateView', eventTracker);
 
-      // send message to broadcaster that a viewer wants to connected
-      var broadcasterSocketId = Object.keys(eventTracker[eventTag].broadcasters)[0]; // for now, pick the 1st broadcaster for this eventTag
-      console.log('broadcasterSocketId', broadcasterSocketId);
+      // send message to broadcaster that a viewer wants to connect
+      var broadcasterSocketIdArr = Object.keys(eventTracker[eventTag].broadcasters); // for now, pick the 1st broadcaster for this eventTag
 
-      // server emits a message to broadcaster to initiate connection
-      // socket.id is from viewer
-      io.to(broadcasterSocketId).emit('initiateConnection', socket.id);
+      for(var i = 0; i < broadcasterSocketIdArr.length; i++) {
+      console.log('broadcasterSocketIdArr', broadcasterSocketIdArr[i]);
+        // server emits a message to broadcaster to initiate connection
+        // socket.id is from viewer
+        io.to(broadcasterSocketIdArr[i]).emit('initiateConnection', socket.id);
+      }
     }
-
   });
 
   socket.on('signal', (toId, message) => {
