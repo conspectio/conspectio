@@ -64,6 +64,15 @@ class ConspectioBroadcaster {
     this.pc.addIceCandidate(new RTCIceCandidate(candidate));
   }
 
+  removeStreamWrapper() {
+    this.pc.removeStream(globalStream);
+    console.log('removeStreamWrapper invoked on broadcast2.js')
+  }
+
+  closeWrapper() {
+    this.pc.close();
+    console.log('broadcast2.js closeWrapper invoked');
+  }
 }
 
 
@@ -137,6 +146,11 @@ stopStream = () => {
   let eventTag = $('#eventTag').val();
   $('#startButton').prop('disabled', false);
   $('#stopButton').prop('disabled', true);
+  for (var conspectioBroadcasterId in connections){
+    connections[conspectioBroadcasterId].removeStreamWrapper();
+    connections[conspectioBroadcasterId].closeWrapper();
+    delete connections[conspectioBroadcasterId];
+  }
   socket.emit('removeBroadcaster', eventTag);
 };
 

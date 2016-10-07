@@ -29,21 +29,37 @@ io.on('connection', (socket) => {
       };
 
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
+      console.log('eventtracker:', eventTracker);
     } else {
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
       for(var viewer in eventTracker[eventTag].viewers) {
         io.to(socket.id).emit('initiateConnection', viewer);
       }
     } 
-    console.log('eventTracker:', eventTracker);
+    // console.log('eventTracker:', eventTracker);
   })
 
   //listens for broadcaster when they stop streaming
   socket.on('removeBroadcaster', (eventTag) => {
     delete eventTracker[eventTag].broadcasters[socket.id];
+    //***need to remove broadcaster stream
+    
     if(!Object.keys(eventTracker[eventTag].broadcasters).length) {
       //need to handle viewer side (redirect viewers back to event page)
+      var destination = './events.html';
+      for (var viewer in eventTracker[eventTag].viewers) {
+
+        io.to(viewer).emit('redirectToEvents', destination); 
+      }
+      console.log('removebroadcaster, no broadcasters remaining, before deleting event', eventTracker);
       delete eventTracker[eventTag];
+      console.log('removebroadcaster, no broadcasters remaining, after deleting event', eventTracker);
+    } else {
+      //inform viewer which broadcaster left so that viewer can look up the corresponding peer connection object, remove track, close it, remove from connections object, remove video tag
+      //add broadcasterid to video tag upon creation
+      for (var viewer in eventTracker[eventTag].viewers) {
+        io.to(viewer).emit('broadcasterLeft', socket.id); 
+      }
     }
     console.log('eventTracker',eventTracker);
   });
@@ -83,8 +99,9 @@ io.on('connection', (socket) => {
     console.log('this user left:', socket.id, 'socket:');
     socket.emit('user disconnected');
     for (var key in eventTracker){
-      console.log('broadcaster disconnected. eventTracker in for loop:', eventTracker);
+      
       if (eventTracker[key].broadcasters[socket.id]) {
+        console.log('broadcaster disconnected. eventTracker in for loop:', eventTracker);
         var eventTag = key;
         console.log('eventTag:', key);
         delete eventTracker[eventTag].broadcasters[socket.id];
@@ -95,7 +112,6 @@ io.on('connection', (socket) => {
           if (Object.keys(eventTracker[eventTag].viewers).length){
             for (var viewer in eventTracker[eventTag].viewers){
               //redirect viewers to events.html
-              
               var destination = './events.html';
               io.to(viewer).emit('redirectToEvents', destination);
               delete eventTracker[eventTag];
@@ -106,6 +122,7 @@ io.on('connection', (socket) => {
       } 
       else if (eventTracker[key].viewers[socket.id]){
         delete eventTracker[key].viewers[socket.id];
+        console.log('viewer left. event: ',eventTracker[key]);
       }
     }
   });

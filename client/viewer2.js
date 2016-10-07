@@ -35,13 +35,17 @@ class ConspectioViewer {
     var video = $('<video class="newVideo"></video>').attr(
       {
         'src': window.URL.createObjectURL(event.stream),
-        'autoplay': true
+        'autoplay': true,
+        'id': this.broadcasterId.slice(2)
       });
     $('#videosDiv').append(video);
   }
 
   handleRemoteStreamRemoved(event) {
     console.log('broadcaster stream removed');
+    //remove stream video tag
+
+    $('#' + this.broadcasterId).remove();
   }
 
   handleIceConnectionChange() {
@@ -75,7 +79,13 @@ class ConspectioViewer {
   addCandidate(candidate) {
     this.pc.addIceCandidate(new RTCIceCandidate(candidate));
   }
- 
+  
+  closeWrapper() {
+    this.pc.close();
+    //remove stream video tag
+    $('#' + this.broadcasterId.slice(2)).remove();
+    console.log('broadcaster stream removed from closewrapper');
+  }
 }
 
 const socket = io();
@@ -109,5 +119,11 @@ socket.on('connect', () => {
     console.log('redirecting viewer to events page');
     window.location.href = destination;
   });
+
+  //broadcaster left - close connection & remove from connections object
+  socket.on('broadcasterLeft', (broadcasterId) => {
+    connections[broadcasterId].closeWrapper();
+    delete connections[broadcasterId];
+  })
 
 });
