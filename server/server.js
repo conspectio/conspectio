@@ -12,7 +12,9 @@ app.get('/', (req,res) => {
 app.use(express.static('client'));
 
 var eventTracker = {};
-var viewersDeciding = {};
+
+// ***UX#1: 
+// var viewersDeciding = {};
 
 io.on('connection', (socket) => {
   //echo test
@@ -151,7 +153,7 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(3030, function(){
+http.listen(3000, function(){
 	console.log('listening on 3000');
 });
 

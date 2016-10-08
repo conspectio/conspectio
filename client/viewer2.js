@@ -131,7 +131,7 @@ socket.on('connect', () => {
       newPC.receiveOffer(message.offer);
       newPC.createAnswerWrapper();
     } else if (message.type === 'candidate') {
-      if (fromId){
+      if (connections[fromId]){
         var currentPC = connections[fromId];
         currentPC.addCandidate(message.candidate);
       }
