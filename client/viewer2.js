@@ -11,7 +11,29 @@ class ConspectioViewer {
   }
 
   init() {
-    this.pc = new RTCPeerConnection(null);
+    this.pc = new RTCPeerConnection({
+      'iceServers': [
+        {
+          'url': 'stun:stun.l.google.com:19302'
+        },
+        {
+          url: 'turn:numb.viagenie.ca',
+          credential: 'muazkh',
+          username: 'webrtc@live.com'
+        },
+        {
+          url: 'turn:192.158.29.39:3478?transport=udp',
+          credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+          username: '28224511:1379330808'
+        },
+        {
+          url: 'turn:192.158.29.39:3478?transport=tcp',
+          credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+          username: '28224511:1379330808'
+        }
+      ]
+    });
+    // this.pc = new RTCPeerConnection(null);
     this.pc.broadcasterId = this.broadcasterId;
     this.pc.onicecandidate = this.handleIceCandidate;
     this.pc.onaddstream = this.handleRemoteStreamAdded;
@@ -109,8 +131,10 @@ socket.on('connect', () => {
       newPC.receiveOffer(message.offer);
       newPC.createAnswerWrapper();
     } else if (message.type === 'candidate') {
-      var currentPC = connections[fromId];
-      currentPC.addCandidate(message.candidate);
+      if (connections[fromId]){
+        var currentPC = connections[fromId];
+        currentPC.addCandidate(message.candidate);
+      }
     }
   });
 
@@ -122,8 +146,10 @@ socket.on('connect', () => {
 
   //broadcaster left - close connection & remove from connections object
   socket.on('broadcasterLeft', (broadcasterId) => {
-    connections[broadcasterId].closeWrapper();
-    delete connections[broadcasterId];
+    if (connections[broadcasterId]){
+      connections[broadcasterId].closeWrapper();
+      delete connections[broadcasterId];
+    }
   })
 
 });
