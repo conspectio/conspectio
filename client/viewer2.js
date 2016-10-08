@@ -11,7 +11,14 @@ class ConspectioViewer {
   }
 
   init() {
-    this.pc = new RTCPeerConnection(null);
+    this.pc = new RTCPeerConnection({
+      'iceServers': [
+        {
+          'url': 'stun:stun.l.google.com:19302'
+        }
+      ]
+    });
+    // this.pc = new RTCPeerConnection(null);
     this.pc.broadcasterId = this.broadcasterId;
     this.pc.onicecandidate = this.handleIceCandidate;
     this.pc.onaddstream = this.handleRemoteStreamAdded;
@@ -122,8 +129,10 @@ socket.on('connect', () => {
 
   //broadcaster left - close connection & remove from connections object
   socket.on('broadcasterLeft', (broadcasterId) => {
-    connections[broadcasterId].closeWrapper();
-    delete connections[broadcasterId];
+    if (connections[broadcasterId]){
+      connections[broadcasterId].closeWrapper();
+      delete connections[broadcasterId];
+    }
   })
 
 });

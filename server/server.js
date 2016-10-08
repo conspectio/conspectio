@@ -12,6 +12,7 @@ app.get('/', (req,res) => {
 app.use(express.static('client'));
 
 var eventTracker = {};
+var viewersDeciding = {};
 
 io.on('connection', (socket) => {
   //echo test
@@ -30,6 +31,8 @@ io.on('connection', (socket) => {
 
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
       console.log('eventtracker:', eventTracker);
+      // ***UX#1: updateViewersOnEventsPage();
+      
     } else {
       eventTracker[eventTag].broadcasters[socket.id] = socket.id;
       for(var viewer in eventTracker[eventTag].viewers) {
@@ -39,21 +42,35 @@ io.on('connection', (socket) => {
     // console.log('eventTracker:', eventTracker);
   })
 
+  // ***UX#1: 
+   //emit event to all viewers currently on events.html a new event has been created and to update event list
+  // updateViewersOnEventsPage = ()=>{
+  //   console.log('inside updateViewersOnEventsPage');
+  //   for (var viewer in viewersDeciding) {
+  //     io.to(viewer).emit('newEventAdded', Object.keys(eventTracker));
+  //   }
+  // }    
+
+  // ***UX#1: 
+  // socket.on('getEventList', (viewersDecidingObj) => {
+  //   console.log('server geteventlist viewersDeciding:', viewersDeciding);
+  //   viewersDeciding = viewersDecidingObj;
+
+  // })
   //listens for broadcaster when they stop streaming
   socket.on('removeBroadcaster', (eventTag) => {
     delete eventTracker[eventTag].broadcasters[socket.id];
-    //***need to remove broadcaster stream
     
     if(!Object.keys(eventTracker[eventTag].broadcasters).length) {
-      //need to handle viewer side (redirect viewers back to event page)
+
       var destination = './events.html';
       for (var viewer in eventTracker[eventTag].viewers) {
 
         io.to(viewer).emit('redirectToEvents', destination); 
       }
-      console.log('removebroadcaster, no broadcasters remaining, before deleting event', eventTracker);
+   
       delete eventTracker[eventTag];
-      console.log('removebroadcaster, no broadcasters remaining, after deleting event', eventTracker);
+     
     } else {
       //inform viewer which broadcaster left so that viewer can look up the corresponding peer connection object, remove track, close it, remove from connections object, remove video tag
       //add broadcasterid to video tag upon creation
@@ -66,6 +83,12 @@ io.on('connection', (socket) => {
 
   //listens for eventList request from viewer
   socket.on('getEventList', () => {
+    for (var event in eventTracker){
+      if (!Object.keys(eventTracker[event].broadcasters).length){
+        delete eventTracker[event];
+      }
+    }
+    
     socket.emit('sendEventList', Object.keys(eventTracker));
   });
 
@@ -128,7 +151,7 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(3000, function(){
+http.listen(3030, function(){
 	console.log('listening on 3000');
 });
 

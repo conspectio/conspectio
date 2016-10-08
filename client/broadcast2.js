@@ -14,7 +14,14 @@ class ConspectioBroadcaster {
   }
 
   init() {
-    this.pc = new RTCPeerConnection(null);
+    this.pc = new RTCPeerConnection({
+      'iceServers': [
+        {
+          'url': 'stun:stun.l.google.com:19302'
+        }
+      ]
+    });
+    // this.pc = new RTCPeerConnection(null);
     this.pc.viewerId = this.viewerId; // add custom attribute
     this.pc.onicecandidate = this.handleIceCandidate;
     this.pc.addStream(globalStream);
