@@ -178,15 +178,16 @@ stopStream = () => {
   socket.emit('removeBroadcaster', eventTag);
 };
 
-window.addEventListener('beforeunload', function(event) {
-  event.preventDefault();
-  console.log('beforeunload event:',event);
-  console.log('broadcaster browser closed…');
-  let eventTag = $('#eventTag').val();
-  for (var conspectioBroadcasterId in connections){
-    connections[conspectioBroadcasterId].removeStreamWrapper();
-    connections[conspectioBroadcasterId].closeWrapper();
-    delete connections[conspectioBroadcasterId];
-  }
-  socket.emit('removeBroadcaster', eventTag);
-});
+// this doesn't work yet. attempted to handle when broadcasters exit browser.
+// window.addEventListener('beforeunload', function(event) {
+//   event.preventDefault();
+//   console.log('beforeunload event:',event);
+//   console.log('broadcaster browser closed…');
+//   let eventTag = $('#eventTag').val();
+//   for (var conspectioBroadcasterId in connections){
+//     connections[conspectioBroadcasterId].removeStreamWrapper();
+//     connections[conspectioBroadcasterId].closeWrapper();
+//     delete connections[conspectioBroadcasterId];
+//   }
+//   socket.emit('removeBroadcaster', eventTag);
+// });
