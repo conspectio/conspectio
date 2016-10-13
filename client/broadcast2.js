@@ -58,11 +58,11 @@ class ConspectioBroadcaster {
   handleIceConnectionChange() {
     if(this.pc) {
       console.log('inside handleIceCandidateDisconnect', this.pc.iceConnectionState);
-      // if(this.pc.iceConnectionState === 'disconnected') {
-      //   console.log('inside pc.onIceConnectionState')
-      //   this.pc.close();
-      //   delete connections[this.viewerId];
-      // }
+      if(this.pc.iceConnectionState === 'disconnected') {
+        console.log('inside pc.onIceConnectionState')
+        this.pc.close();
+        delete connections[this.viewerId];
+      }
     }
   }
 
@@ -146,13 +146,14 @@ sendEventTag = () => {
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
      
     if (navigator.getUserMedia) {       
-        navigator.getUserMedia({video: true, audio: false}, handleVideo, videoError);
+        navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
     }
      
     function handleVideo(stream) {
       let eventTag = $('#eventTag').val();
       globalStream = stream;
       video.src = window.URL.createObjectURL(stream);
+      video.muted = true;
     }
      
     function videoError(e) {
@@ -166,7 +167,14 @@ sendEventTag = () => {
 };
 
 stopStream = () => {
+  //stops audio
+  var audioTrack = globalStream.getAudioTracks();
+  if (audioTrack.length) {
+    globalStream.removeTrack(audioTrack[0]);
+  }
+  //stops video
   globalStream.getTracks()[0].stop();
+
   let eventTag = $('#eventTag').val();
   $('#startButton').prop('disabled', false);
   $('#stopButton').prop('disabled', true);
