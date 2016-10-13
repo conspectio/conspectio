@@ -61,6 +61,7 @@ io.on('connection', (socket) => {
   // })
   //listens for broadcaster when they stop streaming
   socket.on('removeBroadcaster', (eventTag) => {
+    console.log('removebroadcasterListener. eventtracker:', eventTracker);
     delete eventTracker[eventTag].broadcasters[socket.id];
     
     if(!Object.keys(eventTracker[eventTag].broadcasters).length) {
@@ -122,34 +123,34 @@ io.on('connection', (socket) => {
   //listens for disconnection
   socket.on('disconnect', () => {
     console.log('this user left:', socket.id, 'socket:');
-    socket.emit('user disconnected');
-    for (var key in eventTracker){
+    
+  //   // for (var key in eventTracker){
       
-      if (eventTracker[key].broadcasters[socket.id]) {
-        console.log('broadcaster disconnected. eventTracker in for loop:', eventTracker);
-        var eventTag = key;
-        console.log('eventTag:', key);
-        delete eventTracker[eventTag].broadcasters[socket.id];
-        console.log('eventTracker[eventTag]', eventTracker[eventTag]);
-        if(Object.keys(eventTracker[eventTag].broadcasters).length === 0){
+  //   //   if (eventTracker[key].broadcasters[socket.id]) {
+  //   //     console.log('broadcaster disconnected. eventTracker in for loop:', eventTracker);
+  //   //     var eventTag = key;
+  //   //     console.log('eventTag:', key);
+  //   //     delete eventTracker[eventTag].broadcasters[socket.id];
+  //   //     console.log('eventTracker[eventTag]', eventTracker[eventTag]);
+  //   //     if(Object.keys(eventTracker[eventTag].broadcasters).length === 0){
           
-          console.log('no more broadcasters for this event');
-          if (Object.keys(eventTracker[eventTag].viewers).length){
-            for (var viewer in eventTracker[eventTag].viewers){
-              //redirect viewers to events.html
-              var destination = './events.html';
-              io.to(viewer).emit('redirectToEvents', destination);
-              delete eventTracker[eventTag];
-            }
-          }
+  //   //       console.log('no more broadcasters for this event');
+  //   //       if (Object.keys(eventTracker[eventTag].viewers).length){
+  //   //         for (var viewer in eventTracker[eventTag].viewers){
+  //   //           //redirect viewers to events.html
+  //   //           var destination = './events.html';
+  //   //           io.to(viewer).emit('redirectToEvents', destination);
+  //   //           delete eventTracker[eventTag];
+  //   //         }
+  //   //       }
           
-        }
-      } 
-      else if (eventTracker[key].viewers[socket.id]){
-        delete eventTracker[key].viewers[socket.id];
-        console.log('viewer left. event: ',eventTracker[key]);
-      }
-    }
+  //   //     }
+  //   //   } 
+  //   //   else if (eventTracker[key].viewers[socket.id]){
+  //   //     delete eventTracker[key].viewers[socket.id];
+  //   //     console.log('viewer left. event: ',eventTracker[key]);
+  //   //   }
+  //   }
   });
 });
 
