@@ -2,11 +2,13 @@ const chai = require('chai');
 const mocha = require('mocha');
 const should = chai.should();
 
-const PORT = require('../server/server');
+const PORT = require('../server/server').PORT;
 const url = `http://localhost:${PORT}`;
 
 const io = require('socket.io-client');
-// const ioServer = require('socket.io').listen(PORT);
+const io_server = require('../server/server').io;
+
+//connect to the IO instance after defining the listener, so you have define it in the scope outside of the before each step, and then just connect in the beforeEach.
 
 describe('Socket.io test', () => {
   let socket;
@@ -19,19 +21,36 @@ describe('Socket.io test', () => {
 
   beforeEach( (done) => {
     socket = io.connect(url, options);
+    socket.on('connect', () => {
+      console.log('socket connected testing');
+      done();
+    });
+    socket.on('disconnect', () => {
+      console.log('socket disconnect testing');
+    });
+    // done();
+  });
+
+  afterEach( (done) => {
+    if(socket.connected) {
+      console.log('disconnecting');
+      socket.disconnect();
+    } 
+    io_server.close();
     done();
   });
-  //server <--> socket testing
-  it('check if socket is connected', (done) => {
-    socket.on('connect', () => {
-      socket.on('echo', (msg) => {
-        msg.should.equal("server side socket!");
 
-        socket.disconnect();
-        done();
-      });
+  it('sockets should communicate', (done) => {
+    io_server.emit('echotest1', 'Hello World');
+
+    socket.on('echotest1', (msg) => {
+      msg.should.equal('Hello World');
+      done();
+    });
+
+    io_server.on('connection', (socket) => {
+      socket.sould.to.not.be.null;
     });
   });
-
 });
 

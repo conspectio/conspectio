@@ -18,9 +18,7 @@ var eventTracker = {};
 // var viewersDeciding = {};
 
 io.on('connection', (socket) => {
-  //echo test
-  socket.emit('echo', 'server side socket!');
-  
+
   console.log('socket connected', socket.id);
 
   //listens for event tag from broadcaster
@@ -159,4 +157,4 @@ http.listen(PORT, function(){
 	console.log(`listening on ${PORT}`);
 });
 
-module.exports = PORT;
+module.exports = {PORT, io };
