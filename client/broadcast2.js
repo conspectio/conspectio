@@ -150,11 +150,29 @@ sendEventTag = () => {
     var video = $('#broadcastStream')[0];
      
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
-     
-    if (navigator.getUserMedia) {       
-        navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
-    }
-     
+
+  var videoList = [];
+  var videoSource;
+  //uses rear facing camera by default if one is available
+  navigator.mediaDevices.enumerateDevices()
+    .then(function(devices){
+      var option = document.createElement('option');
+      for (var i = 0; i < devices.length; i++){
+        if (devices[i].kind === 'videoinput'){
+          videoList.push(devices[i].deviceId);
+          if(devices[i].kind.length > 1){
+            videoSource = videoList[1];
+          } else {
+            videoSource = videoList[0];
+          }
+        }
+      }
+      if (navigator.getUserMedia) {       
+        navigator.getUserMedia({video: {deviceId: videoSource ? {exact: videoSource} : undefined}, audio: true}, handleVideo, videoError);
+      }
+    })
+    .catch(function(err){console.log('error:',err);});
+
     function handleVideo(stream) {
       let eventTag = $('#eventTag').val();
       globalStream = stream;
