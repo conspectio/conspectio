@@ -58,11 +58,11 @@ class ConspectioBroadcaster {
   handleIceConnectionChange() {
     if(this.pc) {
       console.log('inside handleIceCandidateDisconnect', this.pc.iceConnectionState);
-      if(this.pc.iceConnectionState === 'disconnected') {
-        console.log('inside pc.onIceConnectionState')
-        this.pc.close();
-        delete connections[this.viewerId];
-      }
+      // if(this.pc.iceConnectionState === 'disconnected') {
+      //   console.log('inside pc.onIceConnectionState')
+      //   this.pc.close();
+      //   delete connections[this.viewerId];
+      // }
     }
   }
 
