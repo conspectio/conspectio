@@ -90,7 +90,6 @@ class ConspectioBroadcaster {
 
   removeStreamWrapper() {
     this.pc.removeStream(globalStream);
-    console.log('removeStreamWrapper invoked on broadcast2.js')
   }
 
   closeWrapper() {
@@ -146,13 +145,14 @@ sendEventTag = () => {
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
      
     if (navigator.getUserMedia) {       
-        navigator.getUserMedia({video: true, audio: false}, handleVideo, videoError);
+        navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
     }
      
     function handleVideo(stream) {
       let eventTag = $('#eventTag').val();
       globalStream = stream;
       video.src = window.URL.createObjectURL(stream);
+      video.muted = true;
     }
      
     function videoError(e) {
@@ -166,10 +166,16 @@ sendEventTag = () => {
 };
 
 stopStream = () => {
+  //stops audio
   globalStream.getTracks()[0].stop();
+
+  //stops video
+  globalStream.getTracks()[1].stop();
+
   let eventTag = $('#eventTag').val();
   $('#startButton').prop('disabled', false);
   $('#stopButton').prop('disabled', true);
+  
   for (var conspectioBroadcasterId in connections){
     connections[conspectioBroadcasterId].removeStreamWrapper();
     connections[conspectioBroadcasterId].closeWrapper();
