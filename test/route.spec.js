@@ -29,4 +29,16 @@ describe('Server routes', function() {
     });
   });
 
+  describe('request to /broadcast.html', function() {
+    it('should respond with the broadcast.html file', function(done) {
+      request(HOST)
+        .get('/broadcast.html')
+        .expect( function(response) {
+          const broadcastHtml = fs.readFileSync(path.join(__dirname, '../', 'client', 'broadcast.html'));
+          expect(broadcastHtml.toString()).to.equal(response.text);
+        })
+        .expect(200, done);
+    });
+  });
+
 });
