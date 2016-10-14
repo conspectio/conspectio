@@ -42,7 +42,6 @@ class ConspectioViewer {
   }
 
   handleIceCandidate(event) {
-    console.log('handleIceCandidate event: ', event);
     if(event.candidate) {
       send(this.broadcasterId, {
         type: "candidate",
@@ -82,13 +81,16 @@ class ConspectioViewer {
   }
 
   receiveOffer(offer) {
-    this.pc.setRemoteDescription(new RTCSessionDescription(offer));
+    var remoteDescription = new RTCSessionDescription(offer);
+    remoteDescription.sdp = setSDPBandwidth(remoteDescription.sdp);
+    this.pc.setRemoteDescription(remoteDescription);
   }
 
   createAnswerWrapper() {
     this.pc.createAnswer( (answer) => {
-      this.pc.setLocalDescription(new RTCSessionDescription(answer));
-
+      var sessionDescription = new RTCSessionDescription(answer);
+      sessionDescription.sdp = setSDPBandwidth(sessionDescription.sdp);
+      this.pc.setLocalDescription(sessionDescription);
       send(this.broadcasterId, {
         type: "answer",
         answer: answer
@@ -109,6 +111,13 @@ class ConspectioViewer {
     console.log('broadcaster stream removed from closewrapper');
   }
 }
+
+setSDPBandwidth = (sdp) => {
+  sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+  sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
+  sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
+  return sdp;
+};
 
 const socket = io();
 

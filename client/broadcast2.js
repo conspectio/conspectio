@@ -44,9 +44,6 @@ class ConspectioBroadcaster {
   }
 
   handleIceCandidate(event) {
-   console.log('handleIceCandidate event: ', event);
-   console.log('handleIceCandidate this', this);
-   console.log('handleIceCandidate viewerId', this.viewerId);
     if(event.candidate) {
       send(this.viewerId, {
         type: "candidate",
@@ -72,7 +69,9 @@ class ConspectioBroadcaster {
         type: "offer",
         offer: offer
       });
-      this.pc.setLocalDescription(new RTCSessionDescription(offer));
+      var sessionDescription = new RTCSessionDescription(offer);
+      sessionDescription.sdp = setSDPBandwidth(sessionDescription.sdp);
+      this.pc.setLocalDescription(sessionDescription);
     }, (error) => {
       console.log('Error with creating broadcaster offer', error);
     },{
@@ -81,7 +80,9 @@ class ConspectioBroadcaster {
   }
 
   receiveAnswer(answer) {
-    this.pc.setRemoteDescription(new RTCSessionDescription(answer));
+    var remoteDescription = new RTCSessionDescription(answer);
+    remoteDescription.sdp = setSDPBandwidth(remoteDescription.sdp);
+    this.pc.setRemoteDescription(remoteDescription);
   }
 
   addCandidate(candidate) {
@@ -98,6 +99,12 @@ class ConspectioBroadcaster {
   }
 }
 
+setSDPBandwidth = (sdp) => {
+  sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+  sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
+  sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
+  return sdp;
+};
 
 const socket = io();
 send = (viewerId, message) => {
