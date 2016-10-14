@@ -2,36 +2,55 @@ const chai = require('chai');
 const mocha = require('mocha');
 const should = chai.should();
 
+const PORT = require('../server/server').PORT;
+const url = `http://localhost:${PORT}`;
+
 const io = require('socket.io-client');
+const io_server = require('../server/server').io;
 
-// describe('echo', () => {
+//connect to the IO instance after defining the listener, so you have define it in the scope outside of the before each step, and then just connect in the beforeEach.
 
-//   let server;
-//   let options = {
-//     transports: ['websocket'],
-//     'force new connection': true
-//   };
+describe('Socket.io test', () => {
+  let socket;
+  let options = {
+    transports: ['websocket'],
+    'reconnection delay': 0,
+    'reopen delay' : 0,
+    'force new connection': true
+  };
 
-//   beforeEach( (done) => {
-//     //start the server
-//     server = require('../server/server');
-//     done();
-//   });
-//   //server <--> socket testing
-//   it('echos msg', (done) => {
-//     let client = io.connect("http://localhost:3000", options);
+  beforeEach( (done) => {
+    socket = io.connect(url, options);
+    socket.on('connect', () => {
+      console.log('socket connected testing');
+      done();
+    });
+    socket.on('disconnect', () => {
+      console.log('socket disconnect testing');
+    });
+    // done();
+  });
 
-//     client.on('connect', () => {
-//       client.on('echo', (msg) => {
-//         console.log("message", msg)
-//         msg.should.equal("server side socket!");
+  afterEach( (done) => {
+    if(socket.connected) {
+      console.log('disconnecting');
+      socket.disconnect();
+    } 
+    io_server.close();
+    done();
+  });
 
-//         client.disconnect();
-//         done();
-//       });
+  it('sockets should communicate', (done) => {
+    io_server.emit('echotest1', 'Hello World');
 
-//     });
-//   });
+    socket.on('echotest1', (msg) => {
+      msg.should.equal('Hello World');
+      done();
+    });
 
-// });
+    io_server.on('connection', (socket) => {
+      socket.sould.to.not.be.null;
+    });
+  });
+});
 
