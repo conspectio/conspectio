@@ -3,6 +3,7 @@ const app = express();
 const http = require ('http').Server(app);
 const io = require ('socket.io')(http);
 const path = require('path');
+const PORT = 3001;
 
 app.get('/', (req,res) => {
 	res.sendFile(path.resolve('client/index.html'));
@@ -154,8 +155,8 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(3001, function(){
-	console.log('listening on 3001');
+http.listen(PORT, function(){
+	console.log(`listening on ${PORT}`);
 });
 
-module.export = http;
+module.exports = PORT;
