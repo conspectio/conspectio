@@ -90,7 +90,6 @@ class ConspectioBroadcaster {
 
   removeStreamWrapper() {
     this.pc.removeStream(globalStream);
-    console.log('removeStreamWrapper invoked on broadcast2.js')
   }
 
   closeWrapper() {
@@ -168,16 +167,15 @@ sendEventTag = () => {
 
 stopStream = () => {
   //stops audio
-  var audioTrack = globalStream.getAudioTracks();
-  if (audioTrack.length) {
-    globalStream.removeTrack(audioTrack[0]);
-  }
-  //stops video
   globalStream.getTracks()[0].stop();
+
+  //stops video
+  globalStream.getTracks()[1].stop();
 
   let eventTag = $('#eventTag').val();
   $('#startButton').prop('disabled', false);
   $('#stopButton').prop('disabled', true);
+  
   for (var conspectioBroadcasterId in connections){
     connections[conspectioBroadcasterId].removeStreamWrapper();
     connections[conspectioBroadcasterId].closeWrapper();
