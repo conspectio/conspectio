@@ -1,1 +1,1 @@
-# conspectio
+# conspectioLib

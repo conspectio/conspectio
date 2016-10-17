@@ -1,30 +1,45 @@
 {
   "name": "conspectio",
   "version": "1.0.0",
-  "description": "library that facilitates many-to-many live stream broadcasts",
+  "description": "Conspectio is a library that provides the ability to display multiple one-to-many live stream broadcasts all in one view. Conspectio is built with WebRTC and Socket.io.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server/server.js",
-    "test": "mocha --timeout 20000 test/"
+    "start": "nodemon demo/server/server.js",
+    "build": "./node_modules/.bin/webpack -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/productdana/conspectio.git"
+    "url": "git+https://github.com/conspectio/conspectioLib.git"
   },
-  "author": "Diana Cheung, Simon Situ, & Dana Tran",
+  "keywords": [
+    "conspectio",
+    "livestream",
+    "webrtc",
+    "socket"
+  ],
+  "author": "Diana Cheung, Simon Situ, Dana Tran, <conspectio.js@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/productdana/conspectio/issues"
+    "url": "https://github.com/conspectio/conspectioLib/issues"
   },
-  "homepage": "https://github.com/productdana/conspectio#readme",
+  "homepage": "https://github.com/conspectio/conspectioLib#readme",
   "dependencies": {
+    "express": "4.14.0",
+    "path": "0.12.7",
+    "socket.io": "1.5.0"
+  },
+  "devDependencies": {
+    "babel-core": "6.17.0",
+    "babel-loader": "6.2.5",
+    "babel-preset-es2015": "6.16.0",
     "chai": "^3.5.0",
-    "express": "^4.14.0",
-    "mocha": "^3.1.0",
-    "path": "^0.12.7",
-    "simple-peer": "^6.0.7",
-    "socket.io": "^1.4.8",
-    "socket.io-client": "^1.4.8",
-    "supertest": "^2.0.0"
+    "jquery": "3.1.1",
+    "mocha": "^3.1.2",
+    "nodemon": "1.11.0",
+    "socket.io-client": "1.5.0",
+    "supertest": "^2.0.0",
+    "webpack": "1.13.2",
+    "webrtc-adapter": "2.0.4"
   }
 }

@@ -1,0 +1,50 @@
+
+.jumbotron {
+  margin-top: 10%;
+}
+
+#broadcastbody, #viewerbody, #eventbody, .thumbnail {
+  background-color: #ECECEC;
+  border: none;
+}
+
+#eventTag {
+ background-color: #DADFE1;
+ border-radius: 5px;
+ height: 35px;
+ outline: none;
+}
+
+#videoContainer {
+  margin: 2em auto 0;
+  /*width: 500px;*/
+  padding: 2em;
+  background: #ECECEC;
+  -webkit-box-shadow: 0 1px 10px #ECECEC;
+  -moz-box-shadow: 0 1px 10px #ECECEC;
+  -ms-box-shadow: 0 1px 10px #ECECEC;
+  -o-box-shadow: 0 1px 10px #ECECEC;
+  box-shadow: 0 1px 10px #ECECEC;
+}
+#broadcastStream {
+  /*border: 1px solid #1E824C;*/
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.videoDiv, .caption, #broadcasterinputs, .row {
+  text-align: center;
+  /*width: 100%;*/
+}
+
+.viewergridrow {
+  margin-top: 10%;
+}
+
+.newVideo {
+  border: 1px solid #6C7A89;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+}
