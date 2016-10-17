@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/conspectio/conspectio.git"
+    "url": "https://github.com/conspectio/conspectio.git"
   },
   "keywords": [
     "conspectio",
@@ -19,7 +19,7 @@
     "socket"
   ],
   "author": "Diana Cheung, Simon Situ, Dana Tran, <conspectio.js@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/conspectio/conspectio/issues"
   },
@@ -33,12 +33,12 @@
     "babel-core": "6.17.0",
     "babel-loader": "6.2.5",
     "babel-preset-es2015": "6.16.0",
-    "chai": "^3.5.0",
+    "chai": "3.5.0",
     "jquery": "3.1.1",
-    "mocha": "^3.1.2",
+    "mocha": "3.1.2",
     "nodemon": "1.11.0",
     "socket.io-client": "1.5.0",
-    "supertest": "^2.0.0",
+    "supertest": "2.0.0",
     "webpack": "1.13.2",
     "webrtc-adapter": "2.0.4"
   }
