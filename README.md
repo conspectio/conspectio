@@ -13,11 +13,11 @@ Installation is broken up into server-side and client-side:
 	2) In your server.js file, require in conspectio:
 		var conspectio = require('conspectio');
 		conspectio(http);
-	3) Include this in your server file: 
-		app.use(express.static(path.join(`${__dirname}/../node_modules/conspectio`)));
+	3) Include this in your server file: Note that the path to node_modules folder is relative to your server file.
+		app.use(express.static(path.join(`${__dirname}/../node_modules/conspectio/dist`)));
 
 	Client-Side Implementation:
-	1) Include this in your html file: <script src='./dist/conspectio.js'></script>
+	1) Include this in your html file(s): <script src='conspectio.js'></script>
 	2) To use any of the methods included in these three objects, invoke the functions first:
 		a) To create a ConspectioManager object to get a list of active events:
 		// invoke to setup socket listeners and get list of active events
