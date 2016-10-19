@@ -20953,11 +20953,24 @@
 	'use strict';
 
 	var ConspectioViewer = __webpack_require__(68);
+	var ConspectioBroadcaster = __webpack_require__(65);
 
 	var viewerRTCEndpoint = function viewerRTCEndpoint(eventTag, viewerHandlers) {
 
 	  // viewer wants to initiate contact with broadcaster
 	  conspectio.socket.emit('initiateView', eventTag);
+
+	  //
+	  conspectio.socket.on('initiateRelay', function (viewerReceiverId, broadcasterId) {
+	    console.log('viewerReceiver wants to connect', viewerReceiverId);
+	    var broadcasterPC = conspectio.connections[broadcasterId];
+	    console.log('broadcasterPC stream', broadcasterPC, broadcasterPC.remoteStream);
+	    var newPC = new ConspectioBroadcaster(viewerReceiverId, broadcasterPC.remoteStream);
+	    console.log('broadcaster newPC in viewerRTC', newPC, newPC.stream);
+	    conspectio.connections[viewerReceiverId] = newPC;
+	    newPC.init();
+	    newPC.createOfferWrapper();
+	  });
 
 	  // viewer receives offer or candidate signaling messages
 	  conspectio.socket.on('signal', function (fromId, message) {
@@ -20971,6 +20984,11 @@
 	      var currentPC = conspectio.connections[fromId];
 	      if (currentPC) {
 	        currentPC.addCandidate(message.candidate);
+	      }
+	    } else if (message.type === 'answer') {
+	      var _currentPC = conspectio.connections[fromId];
+	      if (_currentPC) {
+	        _currentPC.receiveAnswer(message.answer);
 	      }
 	    }
 	  });
@@ -21026,6 +21044,7 @@
 	    this.broadcasterId = broadcasterId;
 	    this.viewerHandlers = viewerHandlers;
 	    this.pc;
+	    this.remoteStream;
 	  }
 
 	  _createClass(ConspectioViewer, [{
@@ -21043,6 +21062,10 @@
 
 	      this.pc.broadcasterId = this.broadcasterId; // add custom attribute
 	      this.pc.viewerHandlers = this.viewerHandlers; // add custom attribute
+	      var that = this;
+	      this.pc.setRemoteStream = function (stream) {
+	        that.remoteStream = stream;
+	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
 	      this.pc.onaddstream = this.handleRemoteStreamAdded;
 	      this.pc.onremovestream = this.handleRemoteStreamRemoved;
@@ -21069,7 +21092,8 @@
 	        'autoplay': true,
 	        'id': this.broadcasterId.slice(2)
 	      });
-
+	      this.setRemoteStream(event.stream);
+	      console.log('remoteStream', this.remoteStream);
 	      // invoke broadcasterAdded callback
 	      if (this.viewerHandlers && this.viewerHandlers.broadcasterAdded) {
 	        this.viewerHandlers.broadcasterAdded(video);
