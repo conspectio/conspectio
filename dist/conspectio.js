@@ -10441,8 +10441,8 @@
 	          // reset conspectio.connections
 	          // conspectio.connections = {};
 
-	          // emit message to server
-	          conspectio.socket.emit('sendEventTag', _this.eventId);
+	          // emit message to server to addBroadcaster
+	          conspectio.socket.emit('addBroadcaster', _this.eventId);
 
 	          var that = _this;
 
