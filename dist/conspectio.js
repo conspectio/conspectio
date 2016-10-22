@@ -20803,6 +20803,12 @@
 	      }
 	    }
 	  });
+
+	  // event listener for viewer has left - clean up conspectio.connections{}
+	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	    console.log('viewer ', viewerId, ' has left');
+	    delete conspectio.connections[viewerId];
+	  });
 	};
 
 	module.exports = broadcasterRTCEndpoint;
@@ -21017,6 +21023,26 @@
 	      delete conspectio.connections[broadcasterId];
 	    }
 	  });
+
+	  // event listener for viewer has left - clean up conspectio.connections{}
+	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	    console.log('viewer ', viewerId, ' has left');
+	    delete conspectio.connections[viewerId];
+	  });
+
+	  conspectio.socket.on('initiateUpdateConnection', function (viewerId, origin) {
+	    console.log('inside initiateUpdateConnection, viewerId: ', viewerId, 'origin: ', origin);
+	    // work on renegotiate stream OK???
+	    var currentPC = conspectio.connections[viewerId];
+	    console.log('inside initiateUpdateConnection, stream', currentPC.stream);
+	  });
+
+	  conspectio.socket.on('receiveUpdateConnection', function (broadcasterId, origin) {
+	    console.log('inside receiveUpdateConnection, broadcasterId: ', broadcasterId, 'origin: ', origin);
+	    // work on renegotiate stream OK???
+	    var currentPC = conspectio.connections[broadcasterId];
+	    console.log('inside receiveUpdateConnection, stream', currentPC.remoteStream);
+	  });
 	};
 
 	module.exports = viewerRTCEndpoint;
@@ -21065,6 +21091,7 @@
 	      var that = this;
 	      this.pc.setRemoteStream = function (stream) {
 	        that.remoteStream = stream;
+	        console.log('inside setRemoteStream', that.remoteStream);
 	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
 	      this.pc.onaddstream = this.handleRemoteStreamAdded;
@@ -21093,7 +21120,7 @@
 	        'id': this.broadcasterId.slice(2)
 	      });
 	      this.setRemoteStream(event.stream);
-	      console.log('remoteStream', this.remoteStream);
+
 	      // invoke broadcasterAdded callback
 	      if (this.viewerHandlers && this.viewerHandlers.broadcasterAdded) {
 	        this.viewerHandlers.broadcasterAdded(video);
