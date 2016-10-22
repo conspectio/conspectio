@@ -20803,6 +20803,12 @@
 	      }
 	    }
 	  });
+
+	  // event listener for viewer has left - clean up conspectio.connections{}
+	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	    console.log('viewer ', viewerId, ' has left');
+	    delete conspectio.connections[viewerId];
+	  });
 	};
 
 	module.exports = broadcasterRTCEndpoint;
@@ -21016,6 +21022,17 @@
 	      currentPC.closeWrapper();
 	      delete conspectio.connections[broadcasterId];
 	    }
+	  });
+
+	  // event listener for viewer has left - clean up conspectio.connections{}
+	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	    console.log('viewer ', viewerId, ' has left');
+	    delete conspectio.connections[viewerId];
+	  });
+
+	  conspectio.socket.on('updateConnection', function (viewerId, origin) {
+	    console.log('inside updateConnection, viewerId: ', viewerId, 'origin: ', origin);
+	    // work on renegotiate stream OK???
 	  });
 	};
 
