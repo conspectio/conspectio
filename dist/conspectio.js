@@ -21030,9 +21030,18 @@
 	    delete conspectio.connections[viewerId];
 	  });
 
-	  conspectio.socket.on('updateConnection', function (viewerId, origin) {
-	    console.log('inside updateConnection, viewerId: ', viewerId, 'origin: ', origin);
+	  conspectio.socket.on('initiateUpdateConnection', function (viewerId, origin) {
+	    console.log('inside initiateUpdateConnection, viewerId: ', viewerId, 'origin: ', origin);
 	    // work on renegotiate stream OK???
+	    var currentPC = conspectio.connections[viewerId];
+	    console.log('inside initiateUpdateConnection, stream', currentPC.stream);
+	  });
+
+	  conspectio.socket.on('receiveUpdateConnection', function (broadcasterId, origin) {
+	    console.log('inside receiveUpdateConnection, broadcasterId: ', broadcasterId, 'origin: ', origin);
+	    // work on renegotiate stream OK???
+	    var currentPC = conspectio.connections[broadcasterId];
+	    console.log('inside receiveUpdateConnection, stream', currentPC.remoteStream);
 	  });
 	};
 
@@ -21082,6 +21091,7 @@
 	      var that = this;
 	      this.pc.setRemoteStream = function (stream) {
 	        that.remoteStream = stream;
+	        console.log('inside setRemoteStream', that.remoteStream);
 	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
 	      this.pc.onaddstream = this.handleRemoteStreamAdded;
@@ -21110,7 +21120,7 @@
 	        'id': this.broadcasterId.slice(2)
 	      });
 	      this.setRemoteStream(event.stream);
-	      console.log('remoteStream', this.remoteStream);
+
 	      // invoke broadcasterAdded callback
 	      if (this.viewerHandlers && this.viewerHandlers.broadcasterAdded) {
 	        this.viewerHandlers.broadcasterAdded(video);
