@@ -44,7 +44,7 @@ function handleBroadcasterAdded(newVideo) {
 }
 
 function handleBroadcasterRemoved(videoDivId) {
-    //remove stream video tag
+    //TODO: remove stream video tag -- need to remove parent div
     $('#' + videoDivId).remove();
     console.log('broadcaster stream removed from closewrapper');
 }
