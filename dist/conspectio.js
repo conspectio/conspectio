@@ -20618,13 +20618,17 @@
 	    console.log('viewer ', viewerId, ' wants to connect');
 	    var newPC = new ConspectioBroadcaster(viewerId, stream);
 	    console.log('broadcaster newPC', newPC);
-	    conspectio.connections[viewerId] = newPC;
+	    // composite key = origin (which is this broadcaster's socket.id) + viewerId
+	    var compositeKey = conspectio.socket.id + viewerId;
+	    conspectio.connections[compositeKey] = newPC;
 	    newPC.init();
 	    newPC.createOfferWrapper();
 	  });
 
 	  conspectio.socket.on('signal', function (fromId, message) {
-	    var currentPC = conspectio.connections[fromId];
+	    var compositeKey = conspectio.socket.id + fromId;
+
+	    var currentPC = conspectio.connections[compositeKey];
 	    if (currentPC) {
 	      if (message.type === 'answer') {
 	        currentPC.receiveAnswer(message.answer);
@@ -20806,38 +20810,57 @@
 	  //
 	  conspectio.socket.on('initiateRelay', function (viewerReceiverId, broadcasterId) {
 	    console.log('viewerReceiver wants to connect', viewerReceiverId);
-	    var broadcasterPC = conspectio.connections[broadcasterId];
-	    console.log('broadcasterPC stream', broadcasterPC, broadcasterPC.remoteStream);
-	    var newPC = new ConspectioBroadcaster(viewerReceiverId, broadcasterPC.remoteStream);
+
+	    var compositeKey1 = broadcasterId + conspectio.socket.id;
+
+	    var thePCWithStream = conspectio.connections[compositeKey1];
+	    console.log('thePCWithStream stream', thePCWithStream, thePCWithStream.remoteStream);
+
+	    var newPC = new ConspectioBroadcaster(viewerReceiverId, thePCWithStream.remoteStream);
 	    console.log('broadcaster newPC in viewerRTC', newPC, newPC.stream);
-	    conspectio.connections[viewerReceiverId] = newPC;
+
+	    var compositeKey2 = conspectio.socket.id + viewerReceiverId;
+
+	    conspectio.connections[compositeKey2] = newPC;
 	    newPC.init();
 	    newPC.createOfferWrapper();
 	  });
 
 	  // viewer receives offer or candidate signaling messages
 	  conspectio.socket.on('signal', function (fromId, message) {
+
 	    if (message.type === 'offer') {
+	      var compositeKey1 = fromId + conspectio.socket.id; // do we need the origin id too???
+
 	      //if a PC already exists, then look it up
-	      if (conspectio.connections[fromId]) {
+	      if (conspectio.connections[compositeKey1]) {
+	        // ???? change to compositeKey instead of fromId
 	        var existingPC = conspectio.connections[fromId];
 	        existingPC.receiveOffer(message.offer);
 	        existingPC.createAnswerWrapper();
 	      } else {
 	        //otherwise create a newPC
 	        var newPC = new ConspectioViewer(fromId, viewerHandlers);
-	        conspectio.connections[fromId] = newPC;
+	        conspectio.connections[compositeKey1] = newPC;
 	        newPC.init();
 	        newPC.receiveOffer(message.offer);
 	        newPC.createAnswerWrapper(); // since this needs to happen after receiveOffer, put as callback into receiveOffer?
 	      }
 	    } else if (message.type === 'candidate') {
-	      var currentPC = conspectio.connections[fromId];
+	      // composite key doesn't work here: can be v1v2 OR v2v1
+	      var compositeKey3 = fromId + conspectio.socket.id;
+	      var compositeKey4 = conspectio.socket.id + fromId;
+
+	      var currentPC = conspectio.connections[compositeKey3] || conspectio.connections[compositeKey4];
+
 	      if (currentPC) {
 	        currentPC.addCandidate(message.candidate);
 	      }
 	    } else if (message.type === 'answer') {
-	      var _currentPC = conspectio.connections[fromId];
+	      // composite key doesn't work here
+	      var compositeKey2 = conspectio.socket.id + fromId;
+
+	      var _currentPC = conspectio.connections[compositeKey2];
 	      if (_currentPC) {
 	        _currentPC.receiveAnswer(message.answer);
 	      }
@@ -20888,19 +20911,19 @@
 	    delete conspectio.connections[viewerId];
 	  });
 
-	  conspectio.socket.on('initiateUpdateConnection', function (viewerId, origin) {
-	    console.log('inside initiateUpdateConnection, viewerId: ', viewerId, 'origin: ', origin);
-	    // work on renegotiate stream OK???
-	    var currentPC = conspectio.connections[viewerId];
-	    console.log('inside initiateUpdateConnection, stream', currentPC.stream);
-	  });
+	  // conspectio.socket.on('initiateUpdateConnection', (viewerId, origin) => {
+	  //   console.log('inside initiateUpdateConnection, viewerId: ', viewerId, 'origin: ', origin);
+	  //   // work on renegotiate stream OK???
+	  //   var currentPC = conspectio.connections[viewerId];
+	  //   console.log('inside initiateUpdateConnection, stream', currentPC.stream);
+	  // });
 
-	  conspectio.socket.on('receiveUpdateConnection', function (broadcasterId, origin) {
-	    console.log('inside receiveUpdateConnection, broadcasterId: ', broadcasterId, 'origin: ', origin);
-	    // work on renegotiate stream OK???
-	    var currentPC = conspectio.connections[broadcasterId];
-	    console.log('inside receiveUpdateConnection, stream', currentPC.remoteStream);
-	  });
+	  // conspectio.socket.on('receiveUpdateConnection', (broadcasterId, origin) => {
+	  //   console.log('inside receiveUpdateConnection, broadcasterId: ', broadcasterId, 'origin: ', origin);
+	  //   // work on renegotiate stream OK???
+	  //   var currentPC = conspectio.connections[broadcasterId];
+	  //   console.log('inside receiveUpdateConnection, stream', currentPC.remoteStream);
+	  // });
 	};
 
 	module.exports = viewerRTCEndpoint;
