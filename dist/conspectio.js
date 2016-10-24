@@ -20641,7 +20641,8 @@
 	  // event listener for viewer has left - clean up conspectio.connections{}
 	  conspectio.socket.on('viewerLeft', function (viewerId) {
 	    console.log('viewer ', viewerId, ' has left');
-	    delete conspectio.connections[viewerId];
+	    var compositeKey = conspectio.socket.id + viewerId;
+	    delete conspectio.connections[compositeKey];
 	  });
 	};
 
@@ -20834,8 +20835,7 @@
 
 	      //if a PC already exists, then look it up
 	      if (conspectio.connections[compositeKey1]) {
-	        // ???? change to compositeKey instead of fromId
-	        var existingPC = conspectio.connections[fromId];
+	        var existingPC = conspectio.connections[compositeKey1];
 	        existingPC.receiveOffer(message.offer);
 	        existingPC.createAnswerWrapper();
 	      } else {
@@ -20872,8 +20872,8 @@
 	    // remove stream from leecher PC
 	    //add stream from leecher PC
 	    //start renegotiation process
-	    var sourceStream = conspectio.connections[sourceId].remoteStream;
-	    var leecherPC = conspectio.connections[leecherId];
+	    var sourceStream = conspectio.connections[sourceId + conspectio.socket.id].remoteStream;
+	    var leecherPC = conspectio.connections[conpectio.socket.id + leecherId];
 
 	    leecherPC.replaceStreamWrapper(sourceStream);
 	    console.log('sourceStream:', sourceStream);
@@ -20898,17 +20898,17 @@
 
 	  //broadcaster left - close connection & remove from connections object
 	  conspectio.socket.on('broadcasterLeft', function (broadcasterId) {
-	    var currentPC = conspectio.connections[broadcasterId];
+	    var currentPC = conspectio.connections[broadcasterId + conspectio.socket.id];
 	    if (currentPC) {
 	      currentPC.closeWrapper();
-	      delete conspectio.connections[broadcasterId];
+	      delete conspectio.connections[broadcasterId + conspectio.socket.id];
 	    }
 	  });
 
 	  // event listener for viewer has left - clean up conspectio.connections{}
 	  conspectio.socket.on('viewerLeft', function (viewerId) {
 	    console.log('viewer ', viewerId, ' has left');
-	    delete conspectio.connections[viewerId];
+	    delete conspectio.connections[conspectio.socket.id + viewerId];
 	  });
 
 	  // conspectio.socket.on('initiateUpdateConnection', (viewerId, origin) => {
