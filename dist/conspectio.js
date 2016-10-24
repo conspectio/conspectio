@@ -20834,12 +20834,13 @@
 	// custom wrapper class over RTCPeerConnection object
 
 	var ConspectioBroadcaster = function () {
-	  function ConspectioBroadcaster(viewerId, stream) {
+	  function ConspectioBroadcaster(viewerId, stream, originId) {
 	    _classCallCheck(this, ConspectioBroadcaster);
 
 	    this.viewerId = viewerId;
 	    this.pc;
 	    this.stream = stream;
+	    this.originId = originId;
 	  }
 
 	  _createClass(ConspectioBroadcaster, [{
@@ -20855,6 +20856,7 @@
 	        }]
 	      });
 	      this.pc.viewerId = this.viewerId; // add custom attribute
+	      this.pc.originId = this.originId; // add custom attribute
 	      this.pc.onicecandidate = this.handleIceCandidate;
 	      this.pc.addStream(this.stream);
 	      this.pc.oniceconnectionstatechange = this.handleIceConnectionChange;
@@ -20869,7 +20871,7 @@
 	        send(this.viewerId, {
 	          type: "candidate",
 	          candidate: event.candidate
-	        });
+	        }, this.originId);
 	      }
 	    }
 	  }, {
@@ -20889,7 +20891,7 @@
 	        send(toId, {
 	          type: "offer",
 	          offer: offer
-	        });
+	        }, _this.originId);
 
 	        // set bandwidth constraints for webrtc peer connection
 	        var sessionDescription = new RTCSessionDescription(offer);
@@ -20949,9 +20951,9 @@
 	'use strict';
 
 	// generic send function to send message to recipient via socket
-	var send = function send(toId, message) {
+	var send = function send(toId, message, originId) {
 	  console.log('toId', toId);
-	  conspectio.socket.emit('signal', toId, message);
+	  conspectio.socket.emit('signal', toId, message, originId);
 	};
 
 	module.exports = send;
@@ -21085,13 +21087,14 @@
 	// custom wrapper class over RTCPeerConnection object
 
 	var ConspectioViewer = function () {
-	  function ConspectioViewer(broadcasterId, viewerHandlers) {
+	  function ConspectioViewer(broadcasterId, viewerHandlers, originId) {
 	    _classCallCheck(this, ConspectioViewer);
 
 	    this.broadcasterId = broadcasterId;
 	    this.viewerHandlers = viewerHandlers;
 	    this.pc;
 	    this.remoteStream;
+	    this.originId = originId;
 	  }
 
 	  _createClass(ConspectioViewer, [{
@@ -21111,6 +21114,7 @@
 
 	      this.pc.broadcasterId = this.broadcasterId; // add custom attribute
 	      this.pc.viewerHandlers = this.viewerHandlers; // add custom attribute
+	      this.pc.originId = this.originId; // add custom attribute
 	      var that = this;
 	      this.pc.setRemoteStream = function (stream) {
 	        that.remoteStream = stream;
@@ -21131,7 +21135,7 @@
 	        send(this.broadcasterId, {
 	          type: "candidate",
 	          candidate: event.candidate
-	        });
+	        }, this.originId);
 	      }
 	    }
 	  }, {
@@ -21184,7 +21188,7 @@
 	        send(_this2.broadcasterId, {
 	          type: "answer",
 	          answer: answer
-	        });
+	        }, _this2.originId);
 	      }, function (error) {
 	        console.log('Error with creating viewer offer', error);
 	      });
