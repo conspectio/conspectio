@@ -63,10 +63,10 @@
 	  conspectio.connections = {};
 
 	  // import the ConspectioConnection module
-	  conspectio.ConspectioConnection = __webpack_require__(60);
+	  conspectio.ConspectioConnection = __webpack_require__(61);
 
 	  // import the ConspectioManager module
-	  conspectio.ConspectioManager = __webpack_require__(68);
+	  conspectio.ConspectioManager = __webpack_require__(69);
 
 	  window.conspectio = conspectio;
 	} else {
@@ -2879,7 +2879,7 @@
 	 */
 
 	exports.Manager = __webpack_require__(25);
-	exports.Socket = __webpack_require__(52);
+	exports.Socket = __webpack_require__(53);
 
 
 /***/ },
@@ -5213,14 +5213,14 @@
 	 */
 
 	var eio = __webpack_require__(26);
-	var Socket = __webpack_require__(52);
-	var Emitter = __webpack_require__(53);
+	var Socket = __webpack_require__(53);
+	var Emitter = __webpack_require__(54);
 	var parser = __webpack_require__(17);
-	var on = __webpack_require__(55);
-	var bind = __webpack_require__(56);
+	var on = __webpack_require__(56);
+	var bind = __webpack_require__(57);
 	var debug = __webpack_require__(14)('socket.io-client:manager');
-	var indexOf = __webpack_require__(50);
-	var Backoff = __webpack_require__(59);
+	var indexOf = __webpack_require__(51);
+	var Backoff = __webpack_require__(60);
 
 	/**
 	 * IE6+ hasOwnProperty
@@ -5802,13 +5802,13 @@
 	 */
 
 	var transports = __webpack_require__(29);
-	var Emitter = __webpack_require__(22);
+	var Emitter = __webpack_require__(44);
 	var debug = __webpack_require__(14)('engine.io-client:socket');
-	var index = __webpack_require__(50);
+	var index = __webpack_require__(51);
 	var parser = __webpack_require__(35);
 	var parseuri = __webpack_require__(13);
-	var parsejson = __webpack_require__(51);
-	var parseqs = __webpack_require__(44);
+	var parsejson = __webpack_require__(52);
+	var parseqs = __webpack_require__(45);
 
 	/**
 	 * Module exports.
@@ -6529,8 +6529,8 @@
 
 	var XMLHttpRequest = __webpack_require__(30);
 	var XHR = __webpack_require__(32);
-	var JSONP = __webpack_require__(47);
-	var websocket = __webpack_require__(48);
+	var JSONP = __webpack_require__(48);
+	var websocket = __webpack_require__(49);
 
 	/**
 	 * Export transports.
@@ -6658,8 +6658,8 @@
 
 	var XMLHttpRequest = __webpack_require__(30);
 	var Polling = __webpack_require__(33);
-	var Emitter = __webpack_require__(22);
-	var inherit = __webpack_require__(45);
+	var Emitter = __webpack_require__(44);
+	var inherit = __webpack_require__(46);
 	var debug = __webpack_require__(14)('engine.io-client:polling-xhr');
 
 	/**
@@ -7076,10 +7076,10 @@
 	 */
 
 	var Transport = __webpack_require__(34);
-	var parseqs = __webpack_require__(44);
+	var parseqs = __webpack_require__(45);
 	var parser = __webpack_require__(35);
-	var inherit = __webpack_require__(45);
-	var yeast = __webpack_require__(46);
+	var inherit = __webpack_require__(46);
+	var yeast = __webpack_require__(47);
 	var debug = __webpack_require__(14)('engine.io-client:polling');
 
 	/**
@@ -7327,7 +7327,7 @@
 	 */
 
 	var parser = __webpack_require__(35);
-	var Emitter = __webpack_require__(22);
+	var Emitter = __webpack_require__(44);
 
 	/**
 	 * Module exports.
@@ -8679,6 +8679,176 @@
 /* 44 */
 /***/ function(module, exports) {
 
+	
+	/**
+	 * Expose `Emitter`.
+	 */
+
+	module.exports = Emitter;
+
+	/**
+	 * Initialize a new `Emitter`.
+	 *
+	 * @api public
+	 */
+
+	function Emitter(obj) {
+	  if (obj) return mixin(obj);
+	};
+
+	/**
+	 * Mixin the emitter properties.
+	 *
+	 * @param {Object} obj
+	 * @return {Object}
+	 * @api private
+	 */
+
+	function mixin(obj) {
+	  for (var key in Emitter.prototype) {
+	    obj[key] = Emitter.prototype[key];
+	  }
+	  return obj;
+	}
+
+	/**
+	 * Listen on the given `event` with `fn`.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.on =
+	Emitter.prototype.addEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+	  (this._callbacks[event] = this._callbacks[event] || [])
+	    .push(fn);
+	  return this;
+	};
+
+	/**
+	 * Adds an `event` listener that will be invoked a single
+	 * time then automatically removed.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.once = function(event, fn){
+	  var self = this;
+	  this._callbacks = this._callbacks || {};
+
+	  function on() {
+	    self.off(event, on);
+	    fn.apply(this, arguments);
+	  }
+
+	  on.fn = fn;
+	  this.on(event, on);
+	  return this;
+	};
+
+	/**
+	 * Remove the given callback for `event` or all
+	 * registered callbacks.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.off =
+	Emitter.prototype.removeListener =
+	Emitter.prototype.removeAllListeners =
+	Emitter.prototype.removeEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+
+	  // all
+	  if (0 == arguments.length) {
+	    this._callbacks = {};
+	    return this;
+	  }
+
+	  // specific event
+	  var callbacks = this._callbacks[event];
+	  if (!callbacks) return this;
+
+	  // remove all handlers
+	  if (1 == arguments.length) {
+	    delete this._callbacks[event];
+	    return this;
+	  }
+
+	  // remove specific handler
+	  var cb;
+	  for (var i = 0; i < callbacks.length; i++) {
+	    cb = callbacks[i];
+	    if (cb === fn || cb.fn === fn) {
+	      callbacks.splice(i, 1);
+	      break;
+	    }
+	  }
+	  return this;
+	};
+
+	/**
+	 * Emit `event` with the given args.
+	 *
+	 * @param {String} event
+	 * @param {Mixed} ...
+	 * @return {Emitter}
+	 */
+
+	Emitter.prototype.emit = function(event){
+	  this._callbacks = this._callbacks || {};
+	  var args = [].slice.call(arguments, 1)
+	    , callbacks = this._callbacks[event];
+
+	  if (callbacks) {
+	    callbacks = callbacks.slice(0);
+	    for (var i = 0, len = callbacks.length; i < len; ++i) {
+	      callbacks[i].apply(this, args);
+	    }
+	  }
+
+	  return this;
+	};
+
+	/**
+	 * Return array of callbacks for `event`.
+	 *
+	 * @param {String} event
+	 * @return {Array}
+	 * @api public
+	 */
+
+	Emitter.prototype.listeners = function(event){
+	  this._callbacks = this._callbacks || {};
+	  return this._callbacks[event] || [];
+	};
+
+	/**
+	 * Check if this emitter has `event` handlers.
+	 *
+	 * @param {String} event
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	Emitter.prototype.hasListeners = function(event){
+	  return !! this.listeners(event).length;
+	};
+
+
+/***/ },
+/* 45 */
+/***/ function(module, exports) {
+
 	/**
 	 * Compiles a querystring
 	 * Returns string representation of the object
@@ -8719,7 +8889,7 @@
 
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports) {
 
 	
@@ -8731,7 +8901,7 @@
 	};
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -8805,7 +8975,7 @@
 
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -8814,7 +8984,7 @@
 	 */
 
 	var Polling = __webpack_require__(33);
-	var inherit = __webpack_require__(45);
+	var inherit = __webpack_require__(46);
 
 	/**
 	 * Module exports.
@@ -9043,7 +9213,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -9052,9 +9222,9 @@
 
 	var Transport = __webpack_require__(34);
 	var parser = __webpack_require__(35);
-	var parseqs = __webpack_require__(44);
-	var inherit = __webpack_require__(45);
-	var yeast = __webpack_require__(46);
+	var parseqs = __webpack_require__(45);
+	var inherit = __webpack_require__(46);
+	var yeast = __webpack_require__(47);
 	var debug = __webpack_require__(14)('engine.io-client:websocket');
 	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 
@@ -9067,7 +9237,7 @@
 	var WebSocket = BrowserWebSocket;
 	if (!WebSocket && typeof window === 'undefined') {
 	  try {
-	    WebSocket = __webpack_require__(49);
+	    WebSocket = __webpack_require__(50);
 	  } catch (e) { }
 	}
 
@@ -9341,13 +9511,13 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports) {
 
 	
@@ -9362,7 +9532,7 @@
 	};
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -9400,7 +9570,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -9409,12 +9579,12 @@
 	 */
 
 	var parser = __webpack_require__(17);
-	var Emitter = __webpack_require__(53);
-	var toArray = __webpack_require__(54);
-	var on = __webpack_require__(55);
-	var bind = __webpack_require__(56);
+	var Emitter = __webpack_require__(54);
+	var toArray = __webpack_require__(55);
+	var on = __webpack_require__(56);
+	var bind = __webpack_require__(57);
 	var debug = __webpack_require__(14)('socket.io-client:socket');
-	var hasBin = __webpack_require__(57);
+	var hasBin = __webpack_require__(58);
 
 	/**
 	 * Module exports.
@@ -9825,7 +9995,7 @@
 
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports) {
 
 	
@@ -9992,7 +10162,7 @@
 
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports) {
 
 	module.exports = toArray
@@ -10011,7 +10181,7 @@
 
 
 /***/ },
-/* 55 */
+/* 56 */
 /***/ function(module, exports) {
 
 	
@@ -10041,7 +10211,7 @@
 
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports) {
 
 	/**
@@ -10070,7 +10240,7 @@
 
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -10078,7 +10248,7 @@
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(58);
+	var isArray = __webpack_require__(59);
 
 	/**
 	 * Module exports.
@@ -10136,7 +10306,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -10145,7 +10315,7 @@
 
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports) {
 
 	
@@ -10236,7 +10406,7 @@
 
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10245,9 +10415,9 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var setupGetUserMedia = __webpack_require__(61);
-	var broadcasterRTCEndpoint = __webpack_require__(63);
-	var viewerRTCEndpoint = __webpack_require__(66);
+	var setupGetUserMedia = __webpack_require__(62);
+	var broadcasterRTCEndpoint = __webpack_require__(64);
+	var viewerRTCEndpoint = __webpack_require__(67);
 
 	var ConspectioConnection = function () {
 	  function ConspectioConnection(eventId, role, domId, viewerHandlers, options) {
@@ -10268,9 +10438,6 @@
 
 	      if (this.role && this.role === 'broadcaster') {
 	        (function () {
-	          // reset conspectio.connections
-	          // conspectio.connections = {};
-
 	          // emit message to server to addBroadcaster
 	          conspectio.socket.emit('addBroadcaster', _this.eventId);
 
@@ -10290,6 +10457,9 @@
 	        viewerRTCEndpoint(this.eventId, this.viewerHandlers);
 	      }
 	    }
+
+	    // TODO: fix else if
+
 	  }, {
 	    key: 'stop',
 	    value: function stop() {
@@ -10320,13 +10490,13 @@
 	module.exports = ConspectioConnection;
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	// require in jquery
-	var $ = __webpack_require__(62);
+	var $ = __webpack_require__(63);
 
 	var setupGetUserMedia = function setupGetUserMedia(domId, callback) {
 
@@ -10357,6 +10527,7 @@
 	    console.log('Error in retrieving MediaDevices:', err);
 	  });
 
+	  //TODO: WHY DOES DIANA NEED THIS???
 	  // if (navigator.getUserMedia) {       
 	  //   navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
 	  // }
@@ -10367,7 +10538,7 @@
 	    var broadcasterStream = $(broadcasterStreamId)[0];
 	    broadcasterStream.src = window.URL.createObjectURL(stream);
 
-	    // invoke callback - which will call broadcasterRTCEndpoint(stream)
+	    // invoke callback - which will call broadcasterRTCEndpoint(stream) on the conspectioConnection 
 	    callback(stream);
 	  }
 
@@ -10380,7 +10551,7 @@
 	module.exports = setupGetUserMedia;
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -20606,12 +20777,12 @@
 
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ConspectioBroadcaster = __webpack_require__(64);
+	var ConspectioBroadcaster = __webpack_require__(65);
 
 	var broadcasterRTCEndpoint = function broadcasterRTCEndpoint(stream) {
 	  conspectio.socket.on('initiateConnection', function (viewerId) {
@@ -20649,7 +20820,7 @@
 	module.exports = broadcasterRTCEndpoint;
 
 /***/ },
-/* 64 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20658,7 +20829,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var send = __webpack_require__(65);
+	var send = __webpack_require__(66);
 
 	// custom wrapper class over RTCPeerConnection object
 
@@ -20706,13 +20877,6 @@
 	    value: function handleIceConnectionChange() {
 	      if (this.pc) {
 	        console.log('inside handleIceCandidateDisconnect', this.pc.iceConnectionState);
-
-	        // comment out the following check to allow for iceRestart
-	        // if(this.pc.iceConnectionState === 'disconnected') {
-	        //   console.log('inside pc.onIceConnectionState')
-	        //   this.pc.close();
-	        //   delete conspectio.connections[this.viewerId];
-	        // }
 	      }
 	    }
 	  }, {
@@ -20751,7 +20915,6 @@
 	    key: 'removeStreamWrapper',
 	    value: function removeStreamWrapper() {
 	      this.pc.removeStream(this.stream);
-	      console.log('ConspectioBroadcaster removeStreamWrapper invoked');
 	    }
 	  }, {
 	    key: 'replaceStreamWrapper',
@@ -20763,7 +20926,6 @@
 	    key: 'closeWrapper',
 	    value: function closeWrapper() {
 	      this.pc.close();
-	      console.log('ConspectioBroadcaster closeWrapper invoked');
 	    }
 	  }, {
 	    key: 'setSDPBandwidth',
@@ -20781,7 +20943,7 @@
 	module.exports = ConspectioBroadcaster;
 
 /***/ },
-/* 65 */
+/* 66 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20795,20 +20957,20 @@
 	module.exports = send;
 
 /***/ },
-/* 66 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ConspectioViewer = __webpack_require__(67);
-	var ConspectioBroadcaster = __webpack_require__(64);
+	var ConspectioViewer = __webpack_require__(68);
+	var ConspectioBroadcaster = __webpack_require__(65);
 
 	var viewerRTCEndpoint = function viewerRTCEndpoint(eventTag, viewerHandlers) {
 
 	  // viewer wants to initiate contact with broadcaster
 	  conspectio.socket.emit('initiateView', eventTag);
 
-	  //
+	  // initiateRelay is turning viewer into relay broadcaster
 	  conspectio.socket.on('initiateRelay', function (viewerReceiverId, broadcasterId) {
 	    console.log('viewerReceiver wants to connect', viewerReceiverId);
 
@@ -20888,14 +21050,6 @@
 	    }
 	  });
 
-	  //     //redirect viewer to events page if there are no more broadcasters streaming their event
-	  // conspectio.socket.on('redirectToEvents', (destination) => {
-	  //   // invoke the viewHandler callback passed in by developer to handle no more broadcasters situation
-	  //   if(viewerHandlers && viewerHandlers.noMoreBroadcasters) {
-	  //     viewerHandlers.noMoreBroadcasters(destination);
-	  //   }
-	  // });
-
 	  //broadcaster left - close connection & remove from connections object
 	  conspectio.socket.on('broadcasterLeft', function (broadcasterId) {
 	    var currentPC = conspectio.connections[broadcasterId + conspectio.socket.id];
@@ -20910,26 +21064,12 @@
 	    console.log('viewer ', viewerId, ' has left');
 	    delete conspectio.connections[conspectio.socket.id + viewerId];
 	  });
-
-	  // conspectio.socket.on('initiateUpdateConnection', (viewerId, origin) => {
-	  //   console.log('inside initiateUpdateConnection, viewerId: ', viewerId, 'origin: ', origin);
-	  //   // work on renegotiate stream OK???
-	  //   var currentPC = conspectio.connections[viewerId];
-	  //   console.log('inside initiateUpdateConnection, stream', currentPC.stream);
-	  // });
-
-	  // conspectio.socket.on('receiveUpdateConnection', (broadcasterId, origin) => {
-	  //   console.log('inside receiveUpdateConnection, broadcasterId: ', broadcasterId, 'origin: ', origin);
-	  //   // work on renegotiate stream OK???
-	  //   var currentPC = conspectio.connections[broadcasterId];
-	  //   console.log('inside receiveUpdateConnection, stream', currentPC.remoteStream);
-	  // });
 	};
 
 	module.exports = viewerRTCEndpoint;
 
 /***/ },
-/* 67 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20939,8 +21079,8 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	// require in jquery
-	var $ = __webpack_require__(62);
-	var send = __webpack_require__(65);
+	var $ = __webpack_require__(63);
+	var send = __webpack_require__(66);
 
 	// custom wrapper class over RTCPeerConnection object
 
@@ -20974,7 +21114,6 @@
 	      var that = this;
 	      this.pc.setRemoteStream = function (stream) {
 	        that.remoteStream = stream;
-	        console.log('inside setRemoteStream', that.remoteStream);
 	        //informs server to look up potential leechers of viewer that just received stream
 	        //broadcasterId represents socketId of source of the node emitting 'receivedStream'
 	        conspectio.socket.emit('receivedStream', _this.broadcasterId);
@@ -21023,13 +21162,6 @@
 	    value: function handleIceConnectionChange() {
 	      if (this.pc) {
 	        console.log('inside handleIceCandidateDisconnect', this.pc.iceConnectionState);
-
-	        // comment out the following check to allow for iceRestart
-	        // if(this.pc.iceConnectionState === 'disconnected') {
-	        //   console.log('inside pc.onIceConnectionState')
-	        //   this.pc.close();
-	        //   delete conspectio.connections[this.broadcasterId];
-	        // }
 	      }
 	    }
 	  }, {
@@ -21088,7 +21220,7 @@
 	module.exports = ConspectioViewer;
 
 /***/ },
-/* 68 */
+/* 69 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -21110,7 +21242,6 @@
 
 	      // listener for receiving events list
 	      conspectio.socket.on('sendEventList', function (eventList) {
-	        console.log('EVENT LIST:', eventList);
 	        callback(eventList);
 	      });
 	    }
