@@ -63,10 +63,10 @@
 	  conspectio.connections = {};
 
 	  // import the ConspectioConnection module
-	  conspectio.ConspectioConnection = __webpack_require__(60);
+	  conspectio.ConspectioConnection = __webpack_require__(61);
 
 	  // import the ConspectioManager module
-	  conspectio.ConspectioManager = __webpack_require__(68);
+	  conspectio.ConspectioManager = __webpack_require__(69);
 
 	  window.conspectio = conspectio;
 	} else {
@@ -2879,7 +2879,7 @@
 	 */
 
 	exports.Manager = __webpack_require__(25);
-	exports.Socket = __webpack_require__(52);
+	exports.Socket = __webpack_require__(53);
 
 
 /***/ },
@@ -5213,14 +5213,14 @@
 	 */
 
 	var eio = __webpack_require__(26);
-	var Socket = __webpack_require__(52);
-	var Emitter = __webpack_require__(53);
+	var Socket = __webpack_require__(53);
+	var Emitter = __webpack_require__(54);
 	var parser = __webpack_require__(17);
-	var on = __webpack_require__(55);
-	var bind = __webpack_require__(56);
+	var on = __webpack_require__(56);
+	var bind = __webpack_require__(57);
 	var debug = __webpack_require__(14)('socket.io-client:manager');
-	var indexOf = __webpack_require__(50);
-	var Backoff = __webpack_require__(59);
+	var indexOf = __webpack_require__(51);
+	var Backoff = __webpack_require__(60);
 
 	/**
 	 * IE6+ hasOwnProperty
@@ -5802,13 +5802,13 @@
 	 */
 
 	var transports = __webpack_require__(29);
-	var Emitter = __webpack_require__(22);
+	var Emitter = __webpack_require__(44);
 	var debug = __webpack_require__(14)('engine.io-client:socket');
-	var index = __webpack_require__(50);
+	var index = __webpack_require__(51);
 	var parser = __webpack_require__(35);
 	var parseuri = __webpack_require__(13);
-	var parsejson = __webpack_require__(51);
-	var parseqs = __webpack_require__(44);
+	var parsejson = __webpack_require__(52);
+	var parseqs = __webpack_require__(45);
 
 	/**
 	 * Module exports.
@@ -6529,8 +6529,8 @@
 
 	var XMLHttpRequest = __webpack_require__(30);
 	var XHR = __webpack_require__(32);
-	var JSONP = __webpack_require__(47);
-	var websocket = __webpack_require__(48);
+	var JSONP = __webpack_require__(48);
+	var websocket = __webpack_require__(49);
 
 	/**
 	 * Export transports.
@@ -6658,8 +6658,8 @@
 
 	var XMLHttpRequest = __webpack_require__(30);
 	var Polling = __webpack_require__(33);
-	var Emitter = __webpack_require__(22);
-	var inherit = __webpack_require__(45);
+	var Emitter = __webpack_require__(44);
+	var inherit = __webpack_require__(46);
 	var debug = __webpack_require__(14)('engine.io-client:polling-xhr');
 
 	/**
@@ -7076,10 +7076,10 @@
 	 */
 
 	var Transport = __webpack_require__(34);
-	var parseqs = __webpack_require__(44);
+	var parseqs = __webpack_require__(45);
 	var parser = __webpack_require__(35);
-	var inherit = __webpack_require__(45);
-	var yeast = __webpack_require__(46);
+	var inherit = __webpack_require__(46);
+	var yeast = __webpack_require__(47);
 	var debug = __webpack_require__(14)('engine.io-client:polling');
 
 	/**
@@ -7327,7 +7327,7 @@
 	 */
 
 	var parser = __webpack_require__(35);
-	var Emitter = __webpack_require__(22);
+	var Emitter = __webpack_require__(44);
 
 	/**
 	 * Module exports.
@@ -8679,6 +8679,176 @@
 /* 44 */
 /***/ function(module, exports) {
 
+	
+	/**
+	 * Expose `Emitter`.
+	 */
+
+	module.exports = Emitter;
+
+	/**
+	 * Initialize a new `Emitter`.
+	 *
+	 * @api public
+	 */
+
+	function Emitter(obj) {
+	  if (obj) return mixin(obj);
+	};
+
+	/**
+	 * Mixin the emitter properties.
+	 *
+	 * @param {Object} obj
+	 * @return {Object}
+	 * @api private
+	 */
+
+	function mixin(obj) {
+	  for (var key in Emitter.prototype) {
+	    obj[key] = Emitter.prototype[key];
+	  }
+	  return obj;
+	}
+
+	/**
+	 * Listen on the given `event` with `fn`.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.on =
+	Emitter.prototype.addEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+	  (this._callbacks[event] = this._callbacks[event] || [])
+	    .push(fn);
+	  return this;
+	};
+
+	/**
+	 * Adds an `event` listener that will be invoked a single
+	 * time then automatically removed.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.once = function(event, fn){
+	  var self = this;
+	  this._callbacks = this._callbacks || {};
+
+	  function on() {
+	    self.off(event, on);
+	    fn.apply(this, arguments);
+	  }
+
+	  on.fn = fn;
+	  this.on(event, on);
+	  return this;
+	};
+
+	/**
+	 * Remove the given callback for `event` or all
+	 * registered callbacks.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.off =
+	Emitter.prototype.removeListener =
+	Emitter.prototype.removeAllListeners =
+	Emitter.prototype.removeEventListener = function(event, fn){
+	  this._callbacks = this._callbacks || {};
+
+	  // all
+	  if (0 == arguments.length) {
+	    this._callbacks = {};
+	    return this;
+	  }
+
+	  // specific event
+	  var callbacks = this._callbacks[event];
+	  if (!callbacks) return this;
+
+	  // remove all handlers
+	  if (1 == arguments.length) {
+	    delete this._callbacks[event];
+	    return this;
+	  }
+
+	  // remove specific handler
+	  var cb;
+	  for (var i = 0; i < callbacks.length; i++) {
+	    cb = callbacks[i];
+	    if (cb === fn || cb.fn === fn) {
+	      callbacks.splice(i, 1);
+	      break;
+	    }
+	  }
+	  return this;
+	};
+
+	/**
+	 * Emit `event` with the given args.
+	 *
+	 * @param {String} event
+	 * @param {Mixed} ...
+	 * @return {Emitter}
+	 */
+
+	Emitter.prototype.emit = function(event){
+	  this._callbacks = this._callbacks || {};
+	  var args = [].slice.call(arguments, 1)
+	    , callbacks = this._callbacks[event];
+
+	  if (callbacks) {
+	    callbacks = callbacks.slice(0);
+	    for (var i = 0, len = callbacks.length; i < len; ++i) {
+	      callbacks[i].apply(this, args);
+	    }
+	  }
+
+	  return this;
+	};
+
+	/**
+	 * Return array of callbacks for `event`.
+	 *
+	 * @param {String} event
+	 * @return {Array}
+	 * @api public
+	 */
+
+	Emitter.prototype.listeners = function(event){
+	  this._callbacks = this._callbacks || {};
+	  return this._callbacks[event] || [];
+	};
+
+	/**
+	 * Check if this emitter has `event` handlers.
+	 *
+	 * @param {String} event
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	Emitter.prototype.hasListeners = function(event){
+	  return !! this.listeners(event).length;
+	};
+
+
+/***/ },
+/* 45 */
+/***/ function(module, exports) {
+
 	/**
 	 * Compiles a querystring
 	 * Returns string representation of the object
@@ -8719,7 +8889,7 @@
 
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports) {
 
 	
@@ -8731,7 +8901,7 @@
 	};
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -8805,7 +8975,7 @@
 
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -8814,7 +8984,7 @@
 	 */
 
 	var Polling = __webpack_require__(33);
-	var inherit = __webpack_require__(45);
+	var inherit = __webpack_require__(46);
 
 	/**
 	 * Module exports.
@@ -9043,7 +9213,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -9052,9 +9222,9 @@
 
 	var Transport = __webpack_require__(34);
 	var parser = __webpack_require__(35);
-	var parseqs = __webpack_require__(44);
-	var inherit = __webpack_require__(45);
-	var yeast = __webpack_require__(46);
+	var parseqs = __webpack_require__(45);
+	var inherit = __webpack_require__(46);
+	var yeast = __webpack_require__(47);
 	var debug = __webpack_require__(14)('engine.io-client:websocket');
 	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 
@@ -9067,7 +9237,7 @@
 	var WebSocket = BrowserWebSocket;
 	if (!WebSocket && typeof window === 'undefined') {
 	  try {
-	    WebSocket = __webpack_require__(49);
+	    WebSocket = __webpack_require__(50);
 	  } catch (e) { }
 	}
 
@@ -9341,13 +9511,13 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports) {
 
 	
@@ -9362,7 +9532,7 @@
 	};
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -9400,7 +9570,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -9409,12 +9579,12 @@
 	 */
 
 	var parser = __webpack_require__(17);
-	var Emitter = __webpack_require__(53);
-	var toArray = __webpack_require__(54);
-	var on = __webpack_require__(55);
-	var bind = __webpack_require__(56);
+	var Emitter = __webpack_require__(54);
+	var toArray = __webpack_require__(55);
+	var on = __webpack_require__(56);
+	var bind = __webpack_require__(57);
 	var debug = __webpack_require__(14)('socket.io-client:socket');
-	var hasBin = __webpack_require__(57);
+	var hasBin = __webpack_require__(58);
 
 	/**
 	 * Module exports.
@@ -9825,7 +9995,7 @@
 
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports) {
 
 	
@@ -9992,7 +10162,7 @@
 
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports) {
 
 	module.exports = toArray
@@ -10011,7 +10181,7 @@
 
 
 /***/ },
-/* 55 */
+/* 56 */
 /***/ function(module, exports) {
 
 	
@@ -10041,7 +10211,7 @@
 
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports) {
 
 	/**
@@ -10070,7 +10240,7 @@
 
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -10078,7 +10248,7 @@
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(58);
+	var isArray = __webpack_require__(59);
 
 	/**
 	 * Module exports.
@@ -10136,7 +10306,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -10145,7 +10315,7 @@
 
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports) {
 
 	
@@ -10236,7 +10406,7 @@
 
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10245,9 +10415,9 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var setupGetUserMedia = __webpack_require__(61);
-	var broadcasterRTCEndpoint = __webpack_require__(63);
-	var viewerRTCEndpoint = __webpack_require__(66);
+	var setupGetUserMedia = __webpack_require__(62);
+	var broadcasterRTCEndpoint = __webpack_require__(64);
+	var viewerRTCEndpoint = __webpack_require__(67);
 
 	var ConspectioConnection = function () {
 	  function ConspectioConnection(eventId, role, domId, viewerHandlers, options) {
@@ -10268,9 +10438,6 @@
 
 	      if (this.role && this.role === 'broadcaster') {
 	        (function () {
-	          // reset conspectio.connections
-	          // conspectio.connections = {};
-
 	          // emit message to server to addBroadcaster
 	          conspectio.socket.emit('addBroadcaster', _this.eventId);
 
@@ -10290,6 +10457,9 @@
 	        viewerRTCEndpoint(this.eventId, this.viewerHandlers);
 	      }
 	    }
+
+	    // TODO: fix else if
+
 	  }, {
 	    key: 'stop',
 	    value: function stop() {
@@ -10320,13 +10490,13 @@
 	module.exports = ConspectioConnection;
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	// require in jquery
-	var $ = __webpack_require__(62);
+	var $ = __webpack_require__(63);
 
 	var setupGetUserMedia = function setupGetUserMedia(domId, callback) {
 
@@ -10357,6 +10527,7 @@
 	    console.log('Error in retrieving MediaDevices:', err);
 	  });
 
+	  //TODO: WHY DOES DIANA NEED THIS???
 	  // if (navigator.getUserMedia) {       
 	  //   navigator.getUserMedia({video: true, audio: true}, handleVideo, videoError);
 	  // }
@@ -10367,7 +10538,7 @@
 	    var broadcasterStream = $(broadcasterStreamId)[0];
 	    broadcasterStream.src = window.URL.createObjectURL(stream);
 
-	    // invoke callback - which will call broadcasterRTCEndpoint(stream)
+	    // invoke callback - which will call broadcasterRTCEndpoint(stream) on the conspectioConnection 
 	    callback(stream);
 	  }
 
@@ -10380,7 +10551,7 @@
 	module.exports = setupGetUserMedia;
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -20606,25 +20777,29 @@
 
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ConspectioBroadcaster = __webpack_require__(64);
+	var ConspectioBroadcaster = __webpack_require__(65);
 
 	var broadcasterRTCEndpoint = function broadcasterRTCEndpoint(stream) {
-	  conspectio.socket.on('initiateConnection', function (viewerId) {
+	  conspectio.socket.on('initiateConnection', function (viewerId, originId) {
 	    console.log('viewer ', viewerId, ' wants to connect');
-	    var newPC = new ConspectioBroadcaster(viewerId, stream);
+	    var newPC = new ConspectioBroadcaster(viewerId, stream, originId);
 	    console.log('broadcaster newPC', newPC);
-	    conspectio.connections[viewerId] = newPC;
+	    // composite key = origin (which is this broadcaster's socket.id) + viewerId (who you are connected to)
+	    var compositeKey = originId + viewerId;
+	    conspectio.connections[compositeKey] = newPC;
 	    newPC.init();
 	    newPC.createOfferWrapper();
 	  });
 
-	  conspectio.socket.on('signal', function (fromId, message) {
-	    var currentPC = conspectio.connections[fromId];
+	  conspectio.socket.on('signal', function (fromId, message, originId) {
+	    var compositeKey = originId + fromId;
+
+	    var currentPC = conspectio.connections[compositeKey];
 	    if (currentPC) {
 	      if (message.type === 'answer') {
 	        currentPC.receiveAnswer(message.answer);
@@ -20635,16 +20810,21 @@
 	  });
 
 	  // event listener for viewer has left - clean up conspectio.connections{}
-	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	  conspectio.socket.on('viewerLeft', function (viewerId, originId) {
 	    console.log('viewer ', viewerId, ' has left');
-	    delete conspectio.connections[viewerId];
+	    var compositeKey = originId + viewerId;
+	    var currentPC = conspectio.connections[compositeKey];
+	    if (currentPC) {
+	      currentPC.closeWrapper();
+	      delete conspectio.connections[compositeKey];
+	    }
 	  });
 	};
 
 	module.exports = broadcasterRTCEndpoint;
 
 /***/ },
-/* 64 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20653,17 +20833,18 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var send = __webpack_require__(65);
+	var send = __webpack_require__(66);
 
 	// custom wrapper class over RTCPeerConnection object
 
 	var ConspectioBroadcaster = function () {
-	  function ConspectioBroadcaster(viewerId, stream) {
+	  function ConspectioBroadcaster(viewerId, stream, originId) {
 	    _classCallCheck(this, ConspectioBroadcaster);
 
 	    this.viewerId = viewerId;
 	    this.pc;
 	    this.stream = stream;
+	    this.originId = originId;
 	  }
 
 	  _createClass(ConspectioBroadcaster, [{
@@ -20679,6 +20860,7 @@
 	        }]
 	      });
 	      this.pc.viewerId = this.viewerId; // add custom attribute
+	      this.pc.originId = this.originId; // add custom attribute
 	      this.pc.onicecandidate = this.handleIceCandidate;
 	      this.pc.addStream(this.stream);
 	      this.pc.oniceconnectionstatechange = this.handleIceConnectionChange;
@@ -20693,7 +20875,7 @@
 	        send(this.viewerId, {
 	          type: "candidate",
 	          candidate: event.candidate
-	        });
+	        }, this.originId);
 	      }
 	    }
 	  }, {
@@ -20701,13 +20883,6 @@
 	    value: function handleIceConnectionChange() {
 	      if (this.pc) {
 	        console.log('inside handleIceCandidateDisconnect', this.pc.iceConnectionState);
-
-	        // comment out the following check to allow for iceRestart
-	        // if(this.pc.iceConnectionState === 'disconnected') {
-	        //   console.log('inside pc.onIceConnectionState')
-	        //   this.pc.close();
-	        //   delete conspectio.connections[this.viewerId];
-	        // }
 	      }
 	    }
 	  }, {
@@ -20720,7 +20895,7 @@
 	        send(toId, {
 	          type: "offer",
 	          offer: offer
-	        });
+	        }, _this.originId);
 
 	        // set bandwidth constraints for webrtc peer connection
 	        var sessionDescription = new RTCSessionDescription(offer);
@@ -20746,7 +20921,6 @@
 	    key: 'removeStreamWrapper',
 	    value: function removeStreamWrapper() {
 	      this.pc.removeStream(this.stream);
-	      console.log('ConspectioBroadcaster removeStreamWrapper invoked');
 	    }
 	  }, {
 	    key: 'replaceStreamWrapper',
@@ -20758,7 +20932,6 @@
 	    key: 'closeWrapper',
 	    value: function closeWrapper() {
 	      this.pc.close();
-	      console.log('ConspectioBroadcaster closeWrapper invoked');
 	    }
 	  }, {
 	    key: 'setSDPBandwidth',
@@ -20776,137 +20949,160 @@
 	module.exports = ConspectioBroadcaster;
 
 /***/ },
-/* 65 */
+/* 66 */
 /***/ function(module, exports) {
 
 	'use strict';
 
 	// generic send function to send message to recipient via socket
-	var send = function send(toId, message) {
+	var send = function send(toId, message, originId) {
 	  console.log('toId', toId);
-	  conspectio.socket.emit('signal', toId, message);
+	  conspectio.socket.emit('signal', toId, message, originId);
 	};
 
 	module.exports = send;
 
 /***/ },
-/* 66 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ConspectioViewer = __webpack_require__(67);
-	var ConspectioBroadcaster = __webpack_require__(64);
+	var ConspectioViewer = __webpack_require__(68);
+	var ConspectioBroadcaster = __webpack_require__(65);
 
 	var viewerRTCEndpoint = function viewerRTCEndpoint(eventTag, viewerHandlers) {
 
 	  // viewer wants to initiate contact with broadcaster
 	  conspectio.socket.emit('initiateView', eventTag);
 
-	  //
-	  conspectio.socket.on('initiateRelay', function (viewerReceiverId, broadcasterId) {
+	  // initiateRelay is turning viewer into relay broadcaster
+	  conspectio.socket.on('initiateRelay', function (viewerReceiverId, sourceId, originId) {
 	    console.log('viewerReceiver wants to connect', viewerReceiverId);
-	    var broadcasterPC = conspectio.connections[broadcasterId];
-	    console.log('broadcasterPC stream', broadcasterPC, broadcasterPC.remoteStream);
-	    var newPC = new ConspectioBroadcaster(viewerReceiverId, broadcasterPC.remoteStream);
+
+	    var compositeKey1 = originId + sourceId;
+
+	    var thePCWithStream = conspectio.connections[compositeKey1];
+	    console.log('thePCWithStream stream', thePCWithStream, thePCWithStream.remoteStream);
+
+	    var newPC = new ConspectioBroadcaster(viewerReceiverId, thePCWithStream.remoteStream, originId);
 	    console.log('broadcaster newPC in viewerRTC', newPC, newPC.stream);
-	    conspectio.connections[viewerReceiverId] = newPC;
+
+	    var compositeKey2 = originId + viewerReceiverId;
+
+	    conspectio.connections[compositeKey2] = newPC;
 	    newPC.init();
 	    newPC.createOfferWrapper();
 	  });
 
 	  // viewer receives offer or candidate signaling messages
-	  conspectio.socket.on('signal', function (fromId, message) {
+	  conspectio.socket.on('signal', function (fromId, message, originId) {
+
 	    if (message.type === 'offer') {
+	      var compositeKey1 = originId + fromId;
+
 	      //if a PC already exists, then look it up
-	      if (conspectio.connections[fromId]) {
-	        var existingPC = conspectio.connections[fromId];
+	      if (conspectio.connections[compositeKey1]) {
+	        var existingPC = conspectio.connections[compositeKey1];
 	        existingPC.receiveOffer(message.offer);
 	        existingPC.createAnswerWrapper();
 	      } else {
 	        //otherwise create a newPC
-	        var newPC = new ConspectioViewer(fromId, viewerHandlers);
-	        conspectio.connections[fromId] = newPC;
+	        var newPC = new ConspectioViewer(fromId, viewerHandlers, originId);
+	        conspectio.connections[compositeKey1] = newPC;
 	        newPC.init();
 	        newPC.receiveOffer(message.offer);
-	        newPC.createAnswerWrapper(); // since this needs to happen after receiveOffer, put as callback into receiveOffer?
+	        newPC.createAnswerWrapper();
 	      }
 	    } else if (message.type === 'candidate') {
-	      var currentPC = conspectio.connections[fromId];
+	      // composite key doesn't work here: can be v1v2 OR v2v1
+	      //TODO: check that the keys work
+	      var compositeKey3 = originId + fromId;
+	      // const compositeKey4 = fromId + originId;
+
+	      // var currentPC = conspectio.connections[compositeKey3] || conspectio.connections[compositeKey4];
+	      var currentPC = conspectio.connections[compositeKey3];
+
 	      if (currentPC) {
 	        currentPC.addCandidate(message.candidate);
 	      }
 	    } else if (message.type === 'answer') {
-	      var _currentPC = conspectio.connections[fromId];
+	      var compositeKey2 = originId + fromId;
+
+	      var _currentPC = conspectio.connections[compositeKey2];
 	      if (_currentPC) {
 	        _currentPC.receiveAnswer(message.answer);
 	      }
 	    }
 	  });
 
-	  conspectio.socket.on('relayStream', function (sourceId, leecherId) {
+	  conspectio.socket.on('relayStream', function (sourceId, leecherId, originId) {
 	    //look up sourceId & leecherId in connections object to get the stream we want
 	    // remove stream from leecher PC
 	    //add stream from leecher PC
 	    //start renegotiation process
-	    var sourceStream = conspectio.connections[sourceId].remoteStream;
-	    var leecherPC = conspectio.connections[leecherId];
+	    var compositeKey1 = originId + sourceId;
+	    var compositeKey2 = originId + leecherId;
+	    var sourceStream = conspectio.connections[compositeKey1].remoteStream;
+	    var leecherPC = conspectio.connections[compositeKey2];
 
-	    leecherPC.replaceStreamWrapper(sourceStream);
-	    console.log('sourceStream:', sourceStream);
-	    leecherPC.createOfferWrapper(leecherId);
+	    if (!leecherPC) {
+	      leecherPC = new ConspectioBroadcaster(leecherId, sourceStream, originId);
+	      leecherPC.init();
+	      conspectio.connections[compositeKey2] = leecherPC;
+	    } else {
+	      leecherPC.replaceStreamWrapper(sourceStream);
+	    }
+	    leecherPC.createOfferWrapper();
 	  });
 
 	  // inform developer if there are no more broadcasters
-	  conspectio.socket.on('noMoreBroadcasters', function () {
+	  conspectio.socket.on('noMoreBroadcasters', function (sourceId, originId) {
+	    var compositeKey = originId + sourceId;
+	    var currentPC = conspectio.connections[compositeKey];
+	    if (currentPC) {
+	      currentPC.closeWrapper();
+	      delete conspectio.connections[compositeKey];
+	    }
 	    // invoke the viewHandler callback passed in by developer to handle no more broadcasters situation
 	    if (viewerHandlers && viewerHandlers.noMoreBroadcasters) {
 	      viewerHandlers.noMoreBroadcasters();
 	    }
 	  });
 
-	  //     //redirect viewer to events page if there are no more broadcasters streaming their event
-	  // conspectio.socket.on('redirectToEvents', (destination) => {
-	  //   // invoke the viewHandler callback passed in by developer to handle no more broadcasters situation
-	  //   if(viewerHandlers && viewerHandlers.noMoreBroadcasters) {
-	  //     viewerHandlers.noMoreBroadcasters(destination);
-	  //   }
-	  // });
-
 	  //broadcaster left - close connection & remove from connections object
-	  conspectio.socket.on('broadcasterLeft', function (broadcasterId) {
-	    var currentPC = conspectio.connections[broadcasterId];
+	  conspectio.socket.on('broadcasterLeft', function (relayerId, originId) {
+	    var compositeKey = originId + relayerId;
+	    var currentPC = conspectio.connections[compositeKey];
+	    var videoDivId;
 	    if (currentPC) {
+	      videoDivId = currentPC.broadcasterId;
+	      console.log('videoDivId', videoDivId);
+	      console.log('videoDivId with slice', videoDivId.slice(2));
 	      currentPC.closeWrapper();
-	      delete conspectio.connections[broadcasterId];
+	      delete conspectio.connections[compositeKey];
+	    }
+	    if (viewerHandlers && viewerHandlers.broadcasterRemoved) {
+	      viewerHandlers.broadcasterRemoved(videoDivId);
 	    }
 	  });
 
 	  // event listener for viewer has left - clean up conspectio.connections{}
-	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	  conspectio.socket.on('viewerLeft', function (viewerId, originId) {
+	    var compositeKey = originId + viewerId;
+	    var currentPC = conspectio.connections[compositeKey];
+	    if (currentPC) {
+	      currentPC.closeWrapper();
+	      delete conspectio.connections[compositeKey];
+	    }
 	    console.log('viewer ', viewerId, ' has left');
-	    delete conspectio.connections[viewerId];
-	  });
-
-	  conspectio.socket.on('initiateUpdateConnection', function (viewerId, origin) {
-	    console.log('inside initiateUpdateConnection, viewerId: ', viewerId, 'origin: ', origin);
-	    // work on renegotiate stream OK???
-	    var currentPC = conspectio.connections[viewerId];
-	    console.log('inside initiateUpdateConnection, stream', currentPC.stream);
-	  });
-
-	  conspectio.socket.on('receiveUpdateConnection', function (broadcasterId, origin) {
-	    console.log('inside receiveUpdateConnection, broadcasterId: ', broadcasterId, 'origin: ', origin);
-	    // work on renegotiate stream OK???
-	    var currentPC = conspectio.connections[broadcasterId];
-	    console.log('inside receiveUpdateConnection, stream', currentPC.remoteStream);
 	  });
 	};
 
 	module.exports = viewerRTCEndpoint;
 
 /***/ },
-/* 67 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20916,26 +21112,25 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	// require in jquery
-	var $ = __webpack_require__(62);
-	var send = __webpack_require__(65);
+	var $ = __webpack_require__(63);
+	var send = __webpack_require__(66);
 
 	// custom wrapper class over RTCPeerConnection object
 
 	var ConspectioViewer = function () {
-	  function ConspectioViewer(broadcasterId, viewerHandlers) {
+	  function ConspectioViewer(broadcasterId, viewerHandlers, originId) {
 	    _classCallCheck(this, ConspectioViewer);
 
 	    this.broadcasterId = broadcasterId;
 	    this.viewerHandlers = viewerHandlers;
 	    this.pc;
 	    this.remoteStream;
+	    this.originId = originId;
 	  }
 
 	  _createClass(ConspectioViewer, [{
 	    key: 'init',
 	    value: function init() {
-	      var _this = this;
-
 	      this.pc = new RTCPeerConnection({
 	        'iceServers': [{
 	          'url': 'stun:stun.l.google.com:19302'
@@ -20948,13 +21143,16 @@
 
 	      this.pc.broadcasterId = this.broadcasterId; // add custom attribute
 	      this.pc.viewerHandlers = this.viewerHandlers; // add custom attribute
+	      this.pc.originId = this.originId; // add custom attribute
 	      var that = this;
 	      this.pc.setRemoteStream = function (stream) {
 	        that.remoteStream = stream;
-	        console.log('inside setRemoteStream', that.remoteStream);
+	        console.log('that.remoteStream====', that.remoteStream);
 	        //informs server to look up potential leechers of viewer that just received stream
 	        //broadcasterId represents socketId of source of the node emitting 'receivedStream'
-	        conspectio.socket.emit('receivedStream', _this.broadcasterId);
+	        console.log('that.broadcasterId====', that.broadcasterId);
+	        console.log('that.originId====', that.originId);
+	        conspectio.socket.emit('receivedStream', that.broadcasterId, that.originId);
 	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
 	      this.pc.onaddstream = this.handleRemoteStreamAdded;
@@ -20969,7 +21167,7 @@
 	        send(this.broadcasterId, {
 	          type: "candidate",
 	          candidate: event.candidate
-	        });
+	        }, this.originId);
 	      }
 	    }
 	  }, {
@@ -21000,13 +21198,6 @@
 	    value: function handleIceConnectionChange() {
 	      if (this.pc) {
 	        console.log('inside handleIceCandidateDisconnect', this.pc.iceConnectionState);
-
-	        // comment out the following check to allow for iceRestart
-	        // if(this.pc.iceConnectionState === 'disconnected') {
-	        //   console.log('inside pc.onIceConnectionState')
-	        //   this.pc.close();
-	        //   delete conspectio.connections[this.broadcasterId];
-	        // }
 	      }
 	    }
 	  }, {
@@ -21017,19 +21208,19 @@
 	  }, {
 	    key: 'createAnswerWrapper',
 	    value: function createAnswerWrapper() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      this.pc.createAnswer(function (answer) {
 
 	        // set bandwidth constraints for webrtc peer connection
 	        var sessionDescription = new RTCSessionDescription(answer);
-	        sessionDescription.sdp = _this2.setSDPBandwidth(sessionDescription.sdp);
-	        _this2.pc.setLocalDescription(sessionDescription);
+	        sessionDescription.sdp = _this.setSDPBandwidth(sessionDescription.sdp);
+	        _this.pc.setLocalDescription(sessionDescription);
 
-	        send(_this2.broadcasterId, {
+	        send(_this.broadcasterId, {
 	          type: "answer",
 	          answer: answer
-	        });
+	        }, _this.originId);
 	      }, function (error) {
 	        console.log('Error with creating viewer offer', error);
 	      });
@@ -21065,7 +21256,7 @@
 	module.exports = ConspectioViewer;
 
 /***/ },
-/* 68 */
+/* 69 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -21087,7 +21278,6 @@
 
 	      // listener for receiving events list
 	      conspectio.socket.on('sendEventList', function (eventList) {
-	        console.log('EVENT LIST:', eventList);
 	        callback(eventList);
 	      });
 	    }
