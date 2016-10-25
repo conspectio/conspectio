@@ -21074,9 +21074,16 @@
 	  conspectio.socket.on('broadcasterLeft', function (relayerId, originId) {
 	    var compositeKey = originId + relayerId;
 	    var currentPC = conspectio.connections[compositeKey];
+	    var videoDivId;
 	    if (currentPC) {
+	      videoDivId = currentPC.broadcasterId;
+	      console.log('videoDivId', videoDivId);
+	      console.log('videoDivId with slice', videoDivId.slice(2));
 	      currentPC.closeWrapper();
 	      delete conspectio.connections[compositeKey];
+	    }
+	    if (viewerHandlers && viewerHandlers.broadcasterRemoved) {
+	      viewerHandlers.broadcasterRemoved(videoDivId);
 	    }
 	  });
 
