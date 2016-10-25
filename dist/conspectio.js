@@ -20785,19 +20785,19 @@
 	var ConspectioBroadcaster = __webpack_require__(65);
 
 	var broadcasterRTCEndpoint = function broadcasterRTCEndpoint(stream) {
-	  conspectio.socket.on('initiateConnection', function (viewerId) {
+	  conspectio.socket.on('initiateConnection', function (viewerId, originId) {
 	    console.log('viewer ', viewerId, ' wants to connect');
-	    var newPC = new ConspectioBroadcaster(viewerId, stream);
+	    var newPC = new ConspectioBroadcaster(viewerId, stream, originId);
 	    console.log('broadcaster newPC', newPC);
-	    // composite key = origin (which is this broadcaster's socket.id) + viewerId
-	    var compositeKey = conspectio.socket.id + viewerId;
+	    // composite key = origin (which is this broadcaster's socket.id) + viewerId (who you are connected to)
+	    var compositeKey = originId + viewerId;
 	    conspectio.connections[compositeKey] = newPC;
 	    newPC.init();
 	    newPC.createOfferWrapper();
 	  });
 
-	  conspectio.socket.on('signal', function (fromId, message) {
-	    var compositeKey = conspectio.socket.id + fromId;
+	  conspectio.socket.on('signal', function (fromId, message, originId) {
+	    var compositeKey = originId + fromId;
 
 	    var currentPC = conspectio.connections[compositeKey];
 	    if (currentPC) {
@@ -20810,10 +20810,14 @@
 	  });
 
 	  // event listener for viewer has left - clean up conspectio.connections{}
-	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	  conspectio.socket.on('viewerLeft', function (viewerId, originId) {
 	    console.log('viewer ', viewerId, ' has left');
-	    var compositeKey = conspectio.socket.id + viewerId;
-	    delete conspectio.connections[compositeKey];
+	    var compositeKey = originId + viewerId;
+	    var currentPC = conspectio.connections[compositeKey];
+	    if (currentPC) {
+	      currentPC.closeWrapper();
+	      delete conspectio.connections[compositeKey];
+	    }
 	  });
 	};
 
@@ -20973,18 +20977,18 @@
 	  conspectio.socket.emit('initiateView', eventTag);
 
 	  // initiateRelay is turning viewer into relay broadcaster
-	  conspectio.socket.on('initiateRelay', function (viewerReceiverId, broadcasterId) {
+	  conspectio.socket.on('initiateRelay', function (viewerReceiverId, sourceId, originId) {
 	    console.log('viewerReceiver wants to connect', viewerReceiverId);
 
-	    var compositeKey1 = broadcasterId + conspectio.socket.id;
+	    var compositeKey1 = originId + sourceId;
 
 	    var thePCWithStream = conspectio.connections[compositeKey1];
 	    console.log('thePCWithStream stream', thePCWithStream, thePCWithStream.remoteStream);
 
-	    var newPC = new ConspectioBroadcaster(viewerReceiverId, thePCWithStream.remoteStream);
+	    var newPC = new ConspectioBroadcaster(viewerReceiverId, thePCWithStream.remoteStream, originId);
 	    console.log('broadcaster newPC in viewerRTC', newPC, newPC.stream);
 
-	    var compositeKey2 = conspectio.socket.id + viewerReceiverId;
+	    var compositeKey2 = originId + viewerReceiverId;
 
 	    conspectio.connections[compositeKey2] = newPC;
 	    newPC.init();
@@ -20992,10 +20996,10 @@
 	  });
 
 	  // viewer receives offer or candidate signaling messages
-	  conspectio.socket.on('signal', function (fromId, message) {
+	  conspectio.socket.on('signal', function (fromId, message, originId) {
 
 	    if (message.type === 'offer') {
-	      var compositeKey1 = fromId + conspectio.socket.id; // do we need the origin id too???
+	      var compositeKey1 = originId + fromId;
 
 	      //if a PC already exists, then look it up
 	      if (conspectio.connections[compositeKey1]) {
@@ -21004,25 +21008,26 @@
 	        existingPC.createAnswerWrapper();
 	      } else {
 	        //otherwise create a newPC
-	        var newPC = new ConspectioViewer(fromId, viewerHandlers);
+	        var newPC = new ConspectioViewer(fromId, viewerHandlers, originId);
 	        conspectio.connections[compositeKey1] = newPC;
 	        newPC.init();
 	        newPC.receiveOffer(message.offer);
-	        newPC.createAnswerWrapper(); // since this needs to happen after receiveOffer, put as callback into receiveOffer?
+	        newPC.createAnswerWrapper();
 	      }
 	    } else if (message.type === 'candidate') {
 	      // composite key doesn't work here: can be v1v2 OR v2v1
-	      var compositeKey3 = fromId + conspectio.socket.id;
-	      var compositeKey4 = conspectio.socket.id + fromId;
+	      //TODO: check that the keys work
+	      var compositeKey3 = originId + fromId;
+	      // const compositeKey4 = fromId + originId;
 
-	      var currentPC = conspectio.connections[compositeKey3] || conspectio.connections[compositeKey4];
+	      // var currentPC = conspectio.connections[compositeKey3] || conspectio.connections[compositeKey4];
+	      var currentPC = conspectio.connections[compositeKey3];
 
 	      if (currentPC) {
 	        currentPC.addCandidate(message.candidate);
 	      }
 	    } else if (message.type === 'answer') {
-	      // composite key doesn't work here
-	      var compositeKey2 = conspectio.socket.id + fromId;
+	      var compositeKey2 = originId + fromId;
 
 	      var _currentPC = conspectio.connections[compositeKey2];
 	      if (_currentPC) {
@@ -21031,17 +21036,19 @@
 	    }
 	  });
 
-	  conspectio.socket.on('relayStream', function (sourceId, leecherId) {
+	  conspectio.socket.on('relayStream', function (sourceId, leecherId, originId) {
 	    //look up sourceId & leecherId in connections object to get the stream we want
 	    // remove stream from leecher PC
 	    //add stream from leecher PC
 	    //start renegotiation process
-	    var sourceStream = conspectio.connections[sourceId + conspectio.socket.id].remoteStream;
-	    var leecherPC = conspectio.connections[conpectio.socket.id + leecherId];
+	    var compositeKey1 = originId + sourceId;
+	    var compositeKey2 = originId + leecherId;
+	    var sourceStream = conspectio.connections[compositeKey1].remoteStream;
+	    var leecherPC = conspectio.connections[compositeKey2];
 
 	    leecherPC.replaceStreamWrapper(sourceStream);
 	    console.log('sourceStream:', sourceStream);
-	    leecherPC.createOfferWrapper(leecherId);
+	    leecherPC.createOfferWrapper();
 	  });
 
 	  // inform developer if there are no more broadcasters
@@ -21053,11 +21060,12 @@
 	  });
 
 	  //broadcaster left - close connection & remove from connections object
-	  conspectio.socket.on('broadcasterLeft', function (broadcasterId) {
-	    var currentPC = conspectio.connections[broadcasterId + conspectio.socket.id];
+	  conspectio.socket.on('broadcasterLeft', function (relayerId, originId) {
+	    var compositeKey = originId + relayerId;
+	    var currentPC = conspectio.connections[compositeKey];
 	    if (currentPC) {
 	      currentPC.closeWrapper();
-	      delete conspectio.connections[broadcasterId + conspectio.socket.id];
+	      delete conspectio.connections[compositeKey];
 	    }
 	  });
 
@@ -21100,8 +21108,6 @@
 	  _createClass(ConspectioViewer, [{
 	    key: 'init',
 	    value: function init() {
-	      var _this = this;
-
 	      this.pc = new RTCPeerConnection({
 	        'iceServers': [{
 	          'url': 'stun:stun.l.google.com:19302'
@@ -21120,7 +21126,7 @@
 	        that.remoteStream = stream;
 	        //informs server to look up potential leechers of viewer that just received stream
 	        //broadcasterId represents socketId of source of the node emitting 'receivedStream'
-	        conspectio.socket.emit('receivedStream', _this.broadcasterId);
+	        conspectio.socket.emit('receivedStream', that.broadcasterId, that.originId);
 	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
 	      this.pc.onaddstream = this.handleRemoteStreamAdded;
@@ -21176,19 +21182,19 @@
 	  }, {
 	    key: 'createAnswerWrapper',
 	    value: function createAnswerWrapper() {
-	      var _this2 = this;
+	      var _this = this;
 
 	      this.pc.createAnswer(function (answer) {
 
 	        // set bandwidth constraints for webrtc peer connection
 	        var sessionDescription = new RTCSessionDescription(answer);
-	        sessionDescription.sdp = _this2.setSDPBandwidth(sessionDescription.sdp);
-	        _this2.pc.setLocalDescription(sessionDescription);
+	        sessionDescription.sdp = _this.setSDPBandwidth(sessionDescription.sdp);
+	        _this.pc.setLocalDescription(sessionDescription);
 
-	        send(_this2.broadcasterId, {
+	        send(_this.broadcasterId, {
 	          type: "answer",
 	          answer: answer
-	        }, _this2.originId);
+	        }, _this.originId);
 	      }, function (error) {
 	        console.log('Error with creating viewer offer', error);
 	      });
