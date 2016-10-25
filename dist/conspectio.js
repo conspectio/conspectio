@@ -21046,8 +21046,13 @@
 	    var sourceStream = conspectio.connections[compositeKey1].remoteStream;
 	    var leecherPC = conspectio.connections[compositeKey2];
 
-	    leecherPC.replaceStreamWrapper(sourceStream);
-	    console.log('sourceStream:', sourceStream);
+	    if (!leecherPC) {
+	      leecherPC = new ConspectioBroadcaster(leecherId, sourceStream, originId);
+	      leecherPC.init();
+	      conspectio.connections[compositeKey2] = leecherPC;
+	    } else {
+	      leecherPC.replaceStreamWrapper(sourceStream);
+	    }
 	    leecherPC.createOfferWrapper();
 	  });
 
@@ -21135,8 +21140,11 @@
 	      var that = this;
 	      this.pc.setRemoteStream = function (stream) {
 	        that.remoteStream = stream;
+	        console.log('that.remoteStream====', that.remoteStream);
 	        //informs server to look up potential leechers of viewer that just received stream
 	        //broadcasterId represents socketId of source of the node emitting 'receivedStream'
+	        console.log('that.broadcasterId====', that.broadcasterId);
+	        console.log('that.originId====', that.originId);
 	        conspectio.socket.emit('receivedStream', that.broadcasterId, that.originId);
 	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
