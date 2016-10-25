@@ -20860,6 +20860,7 @@
 	    //start renegotiation process
 	    var compositeKey1 = originId + sourceId;
 	    var compositeKey2 = originId + leecherId;
+	    //TODO: see if  conspectio.connections[compositeKey1] is defined first before remoteStream
 	    var sourceStream = conspectio.connections[compositeKey1].remoteStream;
 	    var leecherPC = conspectio.connections[compositeKey2];
 
