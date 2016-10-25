@@ -20618,7 +20618,6 @@
 	  conspectio.socket.on('initiateConnection', function (viewerId, originId) {
 	    console.log('viewer ', viewerId, ' wants to connect');
 	    var newPC = new ConspectioBroadcaster(viewerId, stream, originId);
-	    console.log('broadcaster newPC', newPC);
 	    // composite key = origin (which is this broadcaster's socket.id) + viewerId (who you are connected to)
 	    var compositeKey = originId + viewerId;
 	    conspectio.connections[compositeKey] = newPC;
@@ -20698,9 +20697,6 @@
 	  }, {
 	    key: 'handleIceCandidate',
 	    value: function handleIceCandidate(event) {
-	      console.log('handleIceCandidate event: ', event);
-	      console.log('handleIceCandidate this', this);
-	      console.log('handleIceCandidate viewerId', this.viewerId);
 	      if (event.candidate) {
 	        send(this.viewerId, {
 	          type: "candidate",
@@ -20813,10 +20809,8 @@
 	    var compositeKey1 = originId + sourceId;
 
 	    var thePCWithStream = conspectio.connections[compositeKey1];
-	    console.log('thePCWithStream stream', thePCWithStream, thePCWithStream.remoteStream);
 
 	    var newPC = new ConspectioBroadcaster(viewerReceiverId, thePCWithStream.remoteStream, originId);
-	    console.log('broadcaster newPC in viewerRTC', newPC, newPC.stream);
 
 	    var compositeKey2 = originId + viewerReceiverId;
 
@@ -20845,20 +20839,13 @@
 	        newPC.createAnswerWrapper();
 	      }
 	    } else if (message.type === 'candidate') {
-	      // composite key doesn't work here: can be v1v2 OR v2v1
-	      //TODO: check that the keys work
 	      var compositeKey3 = originId + fromId;
-	      // const compositeKey4 = fromId + originId;
-
-	      // var currentPC = conspectio.connections[compositeKey3] || conspectio.connections[compositeKey4];
 	      var currentPC = conspectio.connections[compositeKey3];
-
 	      if (currentPC) {
 	        currentPC.addCandidate(message.candidate);
 	      }
 	    } else if (message.type === 'answer') {
 	      var compositeKey2 = originId + fromId;
-
 	      var _currentPC = conspectio.connections[compositeKey2];
 	      if (_currentPC) {
 	        _currentPC.receiveAnswer(message.answer);
@@ -20904,11 +20891,7 @@
 	  conspectio.socket.on('broadcasterLeft', function (relayerId, originId) {
 	    var compositeKey = originId + relayerId;
 	    var currentPC = conspectio.connections[compositeKey];
-	    // var videoDivId;
 	    if (currentPC) {
-	      // videoDivId = currentPC.broadcasterId;
-	      // console.log('videoDivId', videoDivId);
-	      // console.log('videoDivId with slice', videoDivId.slice(2));
 	      currentPC.closeWrapper();
 	      delete conspectio.connections[compositeKey];
 	    }
@@ -20977,11 +20960,8 @@
 	      var that = this;
 	      this.pc.setRemoteStream = function (stream) {
 	        that.remoteStream = stream;
-	        console.log('that.remoteStream====', that.remoteStream);
 	        //informs server to look up potential leechers of viewer that just received stream
 	        //broadcasterId represents socketId of source of the node emitting 'receivedStream'
-	        console.log('that.broadcasterId====', that.broadcasterId);
-	        console.log('that.originId====', that.originId);
 	        conspectio.socket.emit('receivedStream', that.broadcasterId, that.originId);
 	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
@@ -21003,12 +20983,7 @@
 	  }, {
 	    key: 'handleRemoteStreamAdded',
 	    value: function handleRemoteStreamAdded(event) {
-	      console.log('got a stream from broadcaster');
-	      console.log('originId without slice:', this.originId);
-	      console.log('broadcasterId without slice:', this.broadcasterId);
-	      // const compositeKey = this.originId.slice(2) + this.broadcasterId.slice(2);
 	      var compositeKey = this.originId + this.broadcasterId;
-	      console.log('compositeKey in handleRemoteStreamAdded:', compositeKey);
 	      // got remote video stream, now let's show it in a video tag
 	      var video = $('<video class="newVideo"></video>').attr({
 	        'src': window.URL.createObjectURL(event.stream),
@@ -21069,13 +21044,6 @@
 	    key: 'closeWrapper',
 	    value: function closeWrapper() {
 	      this.pc.close();
-
-	      // const compositeKey = this.originId.slice(2) + this.broadcasterId.slice(2);
-
-	      // invoke broadcasterRemoved callback passing in video id to indicate dom element removal
-	      // if(this.viewerHandlers && this.viewerHandlers.broadcasterRemoved) {
-	      //   this.viewerHandlers.broadcasterRemoved(compositeKey);
-	      // }
 	    }
 	  }, {
 	    key: 'setSDPBandwidth',
