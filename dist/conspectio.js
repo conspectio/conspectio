@@ -21052,7 +21052,13 @@
 	  });
 
 	  // inform developer if there are no more broadcasters
-	  conspectio.socket.on('noMoreBroadcasters', function () {
+	  conspectio.socket.on('noMoreBroadcasters', function (sourceId, originId) {
+	    var compositeKey = originId + sourceId;
+	    var currentPC = conspectio.connections[compositeKey];
+	    if (currentPC) {
+	      currentPC.closeWrapper();
+	      delete conspectio.connections[compositeKey];
+	    }
 	    // invoke the viewHandler callback passed in by developer to handle no more broadcasters situation
 	    if (viewerHandlers && viewerHandlers.noMoreBroadcasters) {
 	      viewerHandlers.noMoreBroadcasters();
@@ -21070,9 +21076,14 @@
 	  });
 
 	  // event listener for viewer has left - clean up conspectio.connections{}
-	  conspectio.socket.on('viewerLeft', function (viewerId) {
+	  conspectio.socket.on('viewerLeft', function (viewerId, originId) {
+	    var compositeKey = originId + viewerId;
+	    var currentPC = conspectio.connections[compositeKey];
+	    if (currentPC) {
+	      currentPC.closeWrapper();
+	      delete conspectio.connections[compositeKey];
+	    }
 	    console.log('viewer ', viewerId, ' has left');
-	    delete conspectio.connections[conspectio.socket.id + viewerId];
 	  });
 	};
 
