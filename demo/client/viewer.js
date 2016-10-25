@@ -14,13 +14,13 @@ function setupViewerDom() {
   const eventTag = window.location.search.substring(5);
   $('#eventName').html(eventTag);
 
-  const videosDiv = $('<div></div>').attr(
-    {
-      'id': 'videosDiv'
-    }
-  );
+  // const videosDiv = $('<div></div>').attr(
+  //   {
+  //     'id': 'videosDiv'
+  //   }
+  // );
 
-  parentElement.append(videosDiv);
+  // parentElement.append(videosDiv);
 
   return eventTag;
 }
@@ -44,8 +44,9 @@ function handleBroadcasterAdded(newVideo) {
 }
 
 function handleBroadcasterRemoved(videoDivId) {
-    //TODO: remove stream video tag -- need to remove parent div
-    $('#' + videoDivId).remove();
+    // remove stream video tag -- need to remove parent parent div
+    console.log('DIV TO REMOVE:', $('#' + videoDivId).parent().parent()[0]);
+    $('#' + videoDivId).parent().parent()[0].remove();
     console.log('broadcaster stream removed from closewrapper');
 }
 
