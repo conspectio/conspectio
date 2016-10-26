@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon demo/server/server.js",
     "build": "./node_modules/.bin/webpack -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha --timeout 20000 ./demo/test/test.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/conspectio/conspectio#readme",
   "dependencies": {
     "alasql": "^0.3.3",
+    "cold-brew": "^1.0.30",
     "express": "4.14.0",
     "path": "0.12.7",
     "socket.io": "1.5.0"

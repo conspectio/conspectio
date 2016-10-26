@@ -46,7 +46,12 @@
 
 	'use strict';
 
+	var _require = __webpack_require__(69);
+
+	var observeSignaling = _require.observeSignaling;
+
 	// load the conspectio library object unto the window object
+
 	if (!window.conspectio) {
 	  var conspectio = {};
 
@@ -57,16 +62,16 @@
 	  var io = __webpack_require__(11);
 
 	  // instantiate socket
-	  conspectio.socket = io();
+	  conspectio.socket = observeSignaling(io());
 
 	  // the connections object holds multiple ConspectioConnection objects
 	  conspectio.connections = {};
 
 	  // import the ConspectioConnection module
-	  conspectio.ConspectioConnection = __webpack_require__(61);
+	  conspectio.ConspectioConnection = __webpack_require__(60);
 
 	  // import the ConspectioManager module
-	  conspectio.ConspectioManager = __webpack_require__(69);
+	  conspectio.ConspectioManager = __webpack_require__(68);
 
 	  window.conspectio = conspectio;
 	} else {
@@ -2879,7 +2884,7 @@
 	 */
 
 	exports.Manager = __webpack_require__(25);
-	exports.Socket = __webpack_require__(53);
+	exports.Socket = __webpack_require__(52);
 
 
 /***/ },
@@ -5213,14 +5218,14 @@
 	 */
 
 	var eio = __webpack_require__(26);
-	var Socket = __webpack_require__(53);
-	var Emitter = __webpack_require__(54);
+	var Socket = __webpack_require__(52);
+	var Emitter = __webpack_require__(53);
 	var parser = __webpack_require__(17);
-	var on = __webpack_require__(56);
-	var bind = __webpack_require__(57);
+	var on = __webpack_require__(55);
+	var bind = __webpack_require__(56);
 	var debug = __webpack_require__(14)('socket.io-client:manager');
-	var indexOf = __webpack_require__(51);
-	var Backoff = __webpack_require__(60);
+	var indexOf = __webpack_require__(50);
+	var Backoff = __webpack_require__(59);
 
 	/**
 	 * IE6+ hasOwnProperty
@@ -5802,13 +5807,13 @@
 	 */
 
 	var transports = __webpack_require__(29);
-	var Emitter = __webpack_require__(44);
+	var Emitter = __webpack_require__(22);
 	var debug = __webpack_require__(14)('engine.io-client:socket');
-	var index = __webpack_require__(51);
+	var index = __webpack_require__(50);
 	var parser = __webpack_require__(35);
 	var parseuri = __webpack_require__(13);
-	var parsejson = __webpack_require__(52);
-	var parseqs = __webpack_require__(45);
+	var parsejson = __webpack_require__(51);
+	var parseqs = __webpack_require__(44);
 
 	/**
 	 * Module exports.
@@ -6529,8 +6534,8 @@
 
 	var XMLHttpRequest = __webpack_require__(30);
 	var XHR = __webpack_require__(32);
-	var JSONP = __webpack_require__(48);
-	var websocket = __webpack_require__(49);
+	var JSONP = __webpack_require__(47);
+	var websocket = __webpack_require__(48);
 
 	/**
 	 * Export transports.
@@ -6658,8 +6663,8 @@
 
 	var XMLHttpRequest = __webpack_require__(30);
 	var Polling = __webpack_require__(33);
-	var Emitter = __webpack_require__(44);
-	var inherit = __webpack_require__(46);
+	var Emitter = __webpack_require__(22);
+	var inherit = __webpack_require__(45);
 	var debug = __webpack_require__(14)('engine.io-client:polling-xhr');
 
 	/**
@@ -7076,10 +7081,10 @@
 	 */
 
 	var Transport = __webpack_require__(34);
-	var parseqs = __webpack_require__(45);
+	var parseqs = __webpack_require__(44);
 	var parser = __webpack_require__(35);
-	var inherit = __webpack_require__(46);
-	var yeast = __webpack_require__(47);
+	var inherit = __webpack_require__(45);
+	var yeast = __webpack_require__(46);
 	var debug = __webpack_require__(14)('engine.io-client:polling');
 
 	/**
@@ -7327,7 +7332,7 @@
 	 */
 
 	var parser = __webpack_require__(35);
-	var Emitter = __webpack_require__(44);
+	var Emitter = __webpack_require__(22);
 
 	/**
 	 * Module exports.
@@ -8679,176 +8684,6 @@
 /* 44 */
 /***/ function(module, exports) {
 
-	
-	/**
-	 * Expose `Emitter`.
-	 */
-
-	module.exports = Emitter;
-
-	/**
-	 * Initialize a new `Emitter`.
-	 *
-	 * @api public
-	 */
-
-	function Emitter(obj) {
-	  if (obj) return mixin(obj);
-	};
-
-	/**
-	 * Mixin the emitter properties.
-	 *
-	 * @param {Object} obj
-	 * @return {Object}
-	 * @api private
-	 */
-
-	function mixin(obj) {
-	  for (var key in Emitter.prototype) {
-	    obj[key] = Emitter.prototype[key];
-	  }
-	  return obj;
-	}
-
-	/**
-	 * Listen on the given `event` with `fn`.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.on =
-	Emitter.prototype.addEventListener = function(event, fn){
-	  this._callbacks = this._callbacks || {};
-	  (this._callbacks[event] = this._callbacks[event] || [])
-	    .push(fn);
-	  return this;
-	};
-
-	/**
-	 * Adds an `event` listener that will be invoked a single
-	 * time then automatically removed.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.once = function(event, fn){
-	  var self = this;
-	  this._callbacks = this._callbacks || {};
-
-	  function on() {
-	    self.off(event, on);
-	    fn.apply(this, arguments);
-	  }
-
-	  on.fn = fn;
-	  this.on(event, on);
-	  return this;
-	};
-
-	/**
-	 * Remove the given callback for `event` or all
-	 * registered callbacks.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.off =
-	Emitter.prototype.removeListener =
-	Emitter.prototype.removeAllListeners =
-	Emitter.prototype.removeEventListener = function(event, fn){
-	  this._callbacks = this._callbacks || {};
-
-	  // all
-	  if (0 == arguments.length) {
-	    this._callbacks = {};
-	    return this;
-	  }
-
-	  // specific event
-	  var callbacks = this._callbacks[event];
-	  if (!callbacks) return this;
-
-	  // remove all handlers
-	  if (1 == arguments.length) {
-	    delete this._callbacks[event];
-	    return this;
-	  }
-
-	  // remove specific handler
-	  var cb;
-	  for (var i = 0; i < callbacks.length; i++) {
-	    cb = callbacks[i];
-	    if (cb === fn || cb.fn === fn) {
-	      callbacks.splice(i, 1);
-	      break;
-	    }
-	  }
-	  return this;
-	};
-
-	/**
-	 * Emit `event` with the given args.
-	 *
-	 * @param {String} event
-	 * @param {Mixed} ...
-	 * @return {Emitter}
-	 */
-
-	Emitter.prototype.emit = function(event){
-	  this._callbacks = this._callbacks || {};
-	  var args = [].slice.call(arguments, 1)
-	    , callbacks = this._callbacks[event];
-
-	  if (callbacks) {
-	    callbacks = callbacks.slice(0);
-	    for (var i = 0, len = callbacks.length; i < len; ++i) {
-	      callbacks[i].apply(this, args);
-	    }
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Return array of callbacks for `event`.
-	 *
-	 * @param {String} event
-	 * @return {Array}
-	 * @api public
-	 */
-
-	Emitter.prototype.listeners = function(event){
-	  this._callbacks = this._callbacks || {};
-	  return this._callbacks[event] || [];
-	};
-
-	/**
-	 * Check if this emitter has `event` handlers.
-	 *
-	 * @param {String} event
-	 * @return {Boolean}
-	 * @api public
-	 */
-
-	Emitter.prototype.hasListeners = function(event){
-	  return !! this.listeners(event).length;
-	};
-
-
-/***/ },
-/* 45 */
-/***/ function(module, exports) {
-
 	/**
 	 * Compiles a querystring
 	 * Returns string representation of the object
@@ -8889,7 +8724,7 @@
 
 
 /***/ },
-/* 46 */
+/* 45 */
 /***/ function(module, exports) {
 
 	
@@ -8901,7 +8736,7 @@
 	};
 
 /***/ },
-/* 47 */
+/* 46 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -8975,7 +8810,7 @@
 
 
 /***/ },
-/* 48 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -8984,7 +8819,7 @@
 	 */
 
 	var Polling = __webpack_require__(33);
-	var inherit = __webpack_require__(46);
+	var inherit = __webpack_require__(45);
 
 	/**
 	 * Module exports.
@@ -9213,7 +9048,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 49 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -9222,9 +9057,9 @@
 
 	var Transport = __webpack_require__(34);
 	var parser = __webpack_require__(35);
-	var parseqs = __webpack_require__(45);
-	var inherit = __webpack_require__(46);
-	var yeast = __webpack_require__(47);
+	var parseqs = __webpack_require__(44);
+	var inherit = __webpack_require__(45);
+	var yeast = __webpack_require__(46);
 	var debug = __webpack_require__(14)('engine.io-client:websocket');
 	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 
@@ -9237,7 +9072,7 @@
 	var WebSocket = BrowserWebSocket;
 	if (!WebSocket && typeof window === 'undefined') {
 	  try {
-	    WebSocket = __webpack_require__(50);
+	    WebSocket = __webpack_require__(49);
 	  } catch (e) { }
 	}
 
@@ -9511,13 +9346,13 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 50 */
+/* 49 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 51 */
+/* 50 */
 /***/ function(module, exports) {
 
 	
@@ -9532,7 +9367,7 @@
 	};
 
 /***/ },
-/* 52 */
+/* 51 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -9570,7 +9405,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 53 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -9579,12 +9414,12 @@
 	 */
 
 	var parser = __webpack_require__(17);
-	var Emitter = __webpack_require__(54);
-	var toArray = __webpack_require__(55);
-	var on = __webpack_require__(56);
-	var bind = __webpack_require__(57);
+	var Emitter = __webpack_require__(53);
+	var toArray = __webpack_require__(54);
+	var on = __webpack_require__(55);
+	var bind = __webpack_require__(56);
 	var debug = __webpack_require__(14)('socket.io-client:socket');
-	var hasBin = __webpack_require__(58);
+	var hasBin = __webpack_require__(57);
 
 	/**
 	 * Module exports.
@@ -9995,7 +9830,7 @@
 
 
 /***/ },
-/* 54 */
+/* 53 */
 /***/ function(module, exports) {
 
 	
@@ -10162,7 +9997,7 @@
 
 
 /***/ },
-/* 55 */
+/* 54 */
 /***/ function(module, exports) {
 
 	module.exports = toArray
@@ -10181,7 +10016,7 @@
 
 
 /***/ },
-/* 56 */
+/* 55 */
 /***/ function(module, exports) {
 
 	
@@ -10211,7 +10046,7 @@
 
 
 /***/ },
-/* 57 */
+/* 56 */
 /***/ function(module, exports) {
 
 	/**
@@ -10240,7 +10075,7 @@
 
 
 /***/ },
-/* 58 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -10248,7 +10083,7 @@
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(59);
+	var isArray = __webpack_require__(58);
 
 	/**
 	 * Module exports.
@@ -10306,7 +10141,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 59 */
+/* 58 */
 /***/ function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -10315,7 +10150,7 @@
 
 
 /***/ },
-/* 60 */
+/* 59 */
 /***/ function(module, exports) {
 
 	
@@ -10406,7 +10241,7 @@
 
 
 /***/ },
-/* 61 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -10415,9 +10250,9 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var setupGetUserMedia = __webpack_require__(62);
-	var broadcasterRTCEndpoint = __webpack_require__(64);
-	var viewerRTCEndpoint = __webpack_require__(67);
+	var setupGetUserMedia = __webpack_require__(61);
+	var broadcasterRTCEndpoint = __webpack_require__(63);
+	var viewerRTCEndpoint = __webpack_require__(66);
 
 	var ConspectioConnection = function () {
 	  function ConspectioConnection(eventId, role, domId, viewerHandlers, options) {
@@ -10490,13 +10325,13 @@
 	module.exports = ConspectioConnection;
 
 /***/ },
-/* 62 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	// require in jquery
-	var $ = __webpack_require__(63);
+	var $ = __webpack_require__(62);
 
 	var setupGetUserMedia = function setupGetUserMedia(domId, callback) {
 
@@ -10551,7 +10386,7 @@
 	module.exports = setupGetUserMedia;
 
 /***/ },
-/* 63 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -20777,12 +20612,12 @@
 
 
 /***/ },
-/* 64 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ConspectioBroadcaster = __webpack_require__(65);
+	var ConspectioBroadcaster = __webpack_require__(64);
 
 	var broadcasterRTCEndpoint = function broadcasterRTCEndpoint(stream) {
 	  conspectio.socket.on('initiateConnection', function (viewerId, originId) {
@@ -20824,7 +20659,7 @@
 	module.exports = broadcasterRTCEndpoint;
 
 /***/ },
-/* 65 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20833,7 +20668,11 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var send = __webpack_require__(66);
+	var send = __webpack_require__(65);
+
+	var _require = __webpack_require__(69);
+
+	var coldBrewRTC = _require.coldBrewRTC;
 
 	// custom wrapper class over RTCPeerConnection object
 
@@ -20850,7 +20689,7 @@
 	  _createClass(ConspectioBroadcaster, [{
 	    key: 'init',
 	    value: function init() {
-	      this.pc = new RTCPeerConnection({
+	      this.pc = coldBrewRTC({
 	        'iceServers': [{
 	          'url': 'stun:stun.l.google.com:19302'
 	        }, {
@@ -20858,7 +20697,7 @@
 	          credential: 'muazkh',
 	          username: 'webrtc@live.com'
 	        }]
-	      });
+	      }, null, { label: this.originId + this.broadcasterId });
 	      this.pc.viewerId = this.viewerId; // add custom attribute
 	      this.pc.originId = this.originId; // add custom attribute
 	      this.pc.onicecandidate = this.handleIceCandidate;
@@ -20949,7 +20788,7 @@
 	module.exports = ConspectioBroadcaster;
 
 /***/ },
-/* 66 */
+/* 65 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -20963,13 +20802,13 @@
 	module.exports = send;
 
 /***/ },
-/* 67 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ConspectioViewer = __webpack_require__(68);
-	var ConspectioBroadcaster = __webpack_require__(65);
+	var ConspectioViewer = __webpack_require__(67);
+	var ConspectioBroadcaster = __webpack_require__(64);
 
 	var viewerRTCEndpoint = function viewerRTCEndpoint(eventTag, viewerHandlers) {
 
@@ -21102,7 +20941,7 @@
 	module.exports = viewerRTCEndpoint;
 
 /***/ },
-/* 68 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21112,8 +20951,12 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	// require in jquery
-	var $ = __webpack_require__(63);
-	var send = __webpack_require__(66);
+	var $ = __webpack_require__(62);
+	var send = __webpack_require__(65);
+
+	var _require = __webpack_require__(69);
+
+	var coldBrewRTC = _require.coldBrewRTC;
 
 	// custom wrapper class over RTCPeerConnection object
 
@@ -21131,7 +20974,7 @@
 	  _createClass(ConspectioViewer, [{
 	    key: 'init',
 	    value: function init() {
-	      this.pc = new RTCPeerConnection({
+	      this.pc = coldBrewRTC({
 	        'iceServers': [{
 	          'url': 'stun:stun.l.google.com:19302'
 	        }, {
@@ -21139,7 +20982,7 @@
 	          credential: 'muazkh',
 	          username: 'webrtc@live.com'
 	        }]
-	      });
+	      }, null, { label: this.originId + this.broadcasterId });
 
 	      this.pc.broadcasterId = this.broadcasterId; // add custom attribute
 	      this.pc.viewerHandlers = this.viewerHandlers; // add custom attribute
@@ -21256,7 +21099,7 @@
 	module.exports = ConspectioViewer;
 
 /***/ },
-/* 69 */
+/* 68 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -21287,6 +21130,248 @@
 	}();
 
 	module.exports = ConspectioManager;
+
+/***/ },
+/* 69 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* eslint no-undef: 0 */
+	/* eslint no-unused-vars: 0 */
+	/* eslint prefer-arrow-callback: 0 */
+	/* eslint func-names: 0 */
+	/* eslint no-use-before-define: 0 */
+	/* eslint no-param-reassign: 0 */
+	/* eslint no-shadow: 0 */
+
+	if (window.coldBrewData) {
+	  throw new ColdBrewError(
+	    'Cannot capture RTC events, window.coldBrewData property already exists');
+	}
+
+	// Attach a coldBrewData object to the window object to keep a record of the
+	// events that fire on the RTCPeerConnection object
+	window.coldBrewData = {
+	  RTCEvents: [],
+	  RTCDataChannelEvents: [],
+	  socketEvents: {
+	    outgoing: [],
+	    incoming: [],
+	  },
+	  peerConnections: {},
+	  sockets: {},
+	};
+
+	// An array of all of the events that fire on the RTCPeerConnection object
+	const RTC_PEER_CONNECTION_EVENTS = [
+	  'addstream',
+	  'connectionstatechange',
+	  'datachannel',
+	  'icecandidate',
+	  'iceconnectionstatechange',
+	  'icegatheringstatechange',
+	  'identityresult',
+	  'idpassertionerror',
+	  'idpvalidationerror',
+	  'negotiationneeded',
+	  'peeridentity',
+	  'removestream',
+	  'signalingstatechange',
+	  'track',
+	];
+
+	const RTC_DATA_CHANNEL_EVENTS = [
+	  'bufferedamountlow',
+	  'close',
+	  'error',
+	  'message',
+	  'open',
+	];
+
+	/**
+	 * coldBrewRTC - Factory function that creates and returns an RTCPeerCOnnection
+	 * object. The RTCPeerConnection object's behavior is augmented to
+	 * enable it to push any events that fire on it into an array attached
+	 * to the window object.
+	 *
+	 * @param  {type} servers        description
+	 * @param  {type} options        description
+	 * @param  {type} coldBrewConfig description
+	 * @return {type}                description
+	 */
+	function coldBrewRTC(servers, options, coldBrewConfig, dataChannelConfig) {
+	  if (coldBrewConfig && coldBrewConfig.production) {
+	    return new RTCPeerConnection(servers, options);
+	  }
+
+	  // setup config for RTCPeerConnection
+	  coldBrewConfig = coldBrewConfig || {};
+
+	  const listeners = coldBrewConfig.listeners || RTC_PEER_CONNECTION_EVENTS;
+	  const label = coldBrewConfig.label || null;
+	  validateListeners(listeners);
+
+	  // setup config for dataChannelConfig
+	  dataChannelConfig = dataChannelConfig || {};
+
+	  const dataListeners = dataChannelConfig.listeners || RTC_DATA_CHANNEL_EVENTS;
+	  validateDataListeners(dataListeners);
+
+	  // Create peer connection
+	  const peerConnection = new RTCPeerConnection(servers, options);
+	  addEventLogListeners(peerConnection, listeners, label);
+	  addDataListenersOnChannelCreation(peerConnection, dataListeners);
+	  addDataListenersOnDataChannelEvent(peerConnection, dataListeners);
+
+	  return peerConnection;
+
+
+	  function validateListeners(listeners) {
+	    const valid = listeners.every(listener =>
+	      RTC_PEER_CONNECTION_EVENTS.includes(listener));
+
+	    if (!valid) {
+	      throw new ColdBrewError(
+	        'Invalid event names passed in to coldBrewRTC');
+	    }
+	  }
+
+	  function validateDataListeners(dataListeners) {
+	    const valid = dataListeners.every(listener =>
+	      RTC_DATA_CHANNEL_EVENTS.includes(listener));
+
+	    if (!valid) {
+	      throw new ColdBrewError(
+	        'Invalid data channel event names passed in to coldBrewRTC');
+	    }
+	  }
+
+	  function addEventLogListeners(peerConnection, listeners, label = null) {
+	    if (label) {
+	      window.coldBrewData.peerConnections[label] = [];
+	    }
+
+	    listeners.forEach((listener) => {
+	      peerConnection.addEventListener(listener, (event) => {
+	        window.coldBrewData.RTCEvents.push(event);
+	        if (label) {
+	          window.coldBrewData.peerConnections[label].push(event);
+	        }
+	      });
+	    });
+	  }
+
+	  function addDataListenersOnChannelCreation(peerConnection, dataListeners) {
+	    const createDataChannel = peerConnection.createDataChannel.bind(peerConnection);
+
+	    peerConnection.createDataChannel = function (...args) {
+	      const newDataChannel = createDataChannel(...args);
+	      dataListeners.forEach((listener) => {
+	        newDataChannel.addEventListener(listener, (event) => {
+	          window.coldBrewData.RTCDataChannelEvents.push(event)
+	        });
+	      });
+
+	      return newDataChannel;
+	    }
+	  }
+
+	  function addDataListenersOnDataChannelEvent(peerConnection, dataListeners) {
+	    Object.defineProperty(peerConnection, 'ondatachannel', {
+	      set(func) {
+	        peerConnection.addEventListener('datachannel', function (e) {
+	          const datachannel = e.channel;
+	          dataListeners.forEach((listener) => {
+	            datachannel.addEventListener(listener, (event) => {
+	              window.coldBrewData.RTCDataChannelEvents.push(event);
+	            });
+	          });
+
+	          func(e);
+	        });
+	      },
+	    });
+	  }
+	}
+
+
+	function observeSignaling(socket, options = {}) {
+	  if (options.production === true) return socket;
+
+	  return new Proxy(socket, {
+	    get(target, key, receiver) {
+	      switch (key) {
+	      case 'emit':
+	        return emitAndLog(target);
+
+	      case 'on':
+	        return logOnReceipt(target);
+
+	      default:
+	        return target[key];
+	      }
+	    },
+	  });
+
+	  function emitAndLog(target) {
+	    return function (...args) {
+	      // emit can be called with 1 to 3 arguments:
+	      // type
+	      // type, data
+	      // type, callback
+	      // type, data, callback
+	      // Therefore, we need to parse the arguments
+	      const type = args[0];
+
+	      let data;
+	      let callback;
+
+	      if (args[1]) {
+	        if (typeof args[1] === 'function') callback = args[1];
+	        else data = args[1];
+	      }
+
+	      if (args[2]) {
+	        if (typeof args[2] === 'function') callback = args[2];
+	      }
+
+	      window.coldBrewData.socketEvents.outgoing.push({
+	        type,
+	        data,
+	        callback,
+	      });
+
+	      return target.emit(...args);
+	    }
+	  }
+
+	  function logOnReceipt(target) {
+	    return function (type, callback) {
+	      target.on(type, (...data) => {
+	        window.coldBrewData.socketEvents.incoming.push({
+	          type,
+	          data,
+	          callback,
+	        });
+
+	        callback(...data);
+	      });
+	    }
+	  }
+	}
+
+
+	class ColdBrewError extends Error {}
+
+	if (true) {
+	  module.exports = {
+	    coldBrewRTC,
+	    observeSignaling,
+	    RTC_PEER_CONNECTION_EVENTS,
+	    RTC_DATA_CHANNEL_EVENTS
+	  };
+	}
+
+
 
 /***/ }
 /******/ ]);

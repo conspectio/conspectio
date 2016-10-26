@@ -7,7 +7,7 @@ const expect = chai.expect;
 
 const HOST = 'http://localhost:3001';
 
-require('../server/server');
+require('./../server/server');
 
 describe('Server routes', function() {
   describe('GET request to /', function() {
