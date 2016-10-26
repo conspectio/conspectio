@@ -21218,6 +21218,7 @@
 	        that.remoteStream = stream;
 	        //informs server to look up potential leechers of viewer that just received stream
 	        //broadcasterId represents socketId of source of the node emitting 'receivedStream'
+	        console.log('INSIDE SET REMOTE STREAM - broadcasterId:', that.broadcasterId, 'originId:', that.originId);
 	        conspectio.socket.emit('receivedStream', that.broadcasterId, that.originId);
 	      };
 	      this.pc.onicecandidate = this.handleIceCandidate;
