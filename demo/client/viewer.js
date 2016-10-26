@@ -14,13 +14,13 @@ function setupViewerDom() {
   const eventTag = window.location.search.substring(5);
   $('#eventName').html(eventTag);
 
-  const videosDiv = $('<div></div>').attr(
-    {
-      'id': 'videosDiv'
-    }
-  );
+  // const videosDiv = $('<div></div>').attr(
+  //   {
+  //     'id': 'videosDiv'
+  //   }
+  // );
 
-  parentElement.append(videosDiv);
+  // parentElement.append(videosDiv);
 
   return eventTag;
 }
@@ -36,7 +36,6 @@ function handleBroadcasterAdded(newVideo) {
 
   const responsiveGrid = $('<div class = "col-xs-6"></div>');
   const videoDiv = $('<div class="videoDiv"></div>').append(newVideo);
-  // const videoDivVideo = videoDiv.append(newVideo);
   const responsiveGridvideoDivVideo = responsiveGrid.append(videoDiv);
 
   const viewerVideosDivId = '#' + 'conspectioViewerContainer';
@@ -44,8 +43,11 @@ function handleBroadcasterAdded(newVideo) {
 }
 
 function handleBroadcasterRemoved(videoDivId) {
-    //TODO: remove stream video tag -- need to remove parent div
-    $('#' + videoDivId).remove();
+    // remove stream video tag -- need to remove parent parent div
+    console.log('videoDivId:', videoDivId);
+    //TODO: make a promise to remove when it's available
+    console.log('DIV TO REMOVE:', $('#' + videoDivId).parent().parent()[0]);
+    $('#' + videoDivId).parent().parent()[0].remove();
     console.log('broadcaster stream removed from closewrapper');
 }
 
