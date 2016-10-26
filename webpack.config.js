@@ -5,7 +5,7 @@ module.exports = [
     entry: `${__dirname}/lib/client/mainClient.js`,
     output: {
       path: `${__dirname}/dist`,
-      filename: 'conspectio.js'
+      filename: 'conspectio.min.js'
     },
     module: {
       loaders: [ 
@@ -18,6 +18,13 @@ module.exports = [
 				}
       }  
       ]
-    }
+    },
+    plugins: [
+      new webpack.BannerPlugin('Copyright Conspectio'),
+      new webpack.optimize.OccurenceOrderPlugin(),
+      new webpack.optimize.UglifyJsPlugin({
+        compress: { warnings: false },
+      }),
+    ]
   }  
 ];
