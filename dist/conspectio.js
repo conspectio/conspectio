@@ -20707,6 +20707,7 @@
 	  }, {
 	    key: 'handleIceCandidate',
 	    value: function handleIceCandidate(event) {
+	      /////check version
 	      console.log('handleIceCandidate event: ', event);
 	      console.log('handleIceCandidate this', this);
 	      console.log('handleIceCandidate viewerId', this.viewerId);
@@ -21024,7 +21025,7 @@
 	        'id': this.broadcasterId.slice(2)
 	      });
 	      this.setRemoteStream(event.stream);
-
+	      console.log('STREAM:', event.stream);
 	      // invoke broadcasterAdded callback
 	      if (this.viewerHandlers && this.viewerHandlers.broadcasterAdded) {
 	        this.viewerHandlers.broadcasterAdded(video);

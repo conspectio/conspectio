@@ -5,7 +5,7 @@ const request = require('supertest');
 
 const expect = chai.expect;
 
-const HOST = 'http://localhost:3001';
+const HOST = 'http://localhost:3000';
 
 require('./../server/server');
 
