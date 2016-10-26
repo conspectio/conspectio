@@ -2,11 +2,11 @@ const chai = require('chai');
 const mocha = require('mocha');
 const should = chai.should();
 
-const PORT = require('../server/server').PORT;
+const PORT = require('./../server/server').PORT;
 const url = `http://localhost:${PORT}`;
 
 const io = require('socket.io-client');
-const io_server = require('../server/server').io;
+const io_server = require('./../server/server').io;
 
 //connect to the IO instance after defining the listener, so you have define it in the scope outside of the before each step, and then just connect in the beforeEach.
 
