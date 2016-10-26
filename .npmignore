@@ -1,9 +1,6 @@
 # demo is only used for lib development
 demo
 
-# test is only used for lib and demo development
-test
-
 # Logs
 logs
 *.log
