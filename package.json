@@ -1,7 +1,7 @@
 {
   "name": "conspectio",
-  "version": "3.1.0",
-  "description": "Conspectio is a library that provides the ability to display multiple one-to-many live stream broadcasts all in one view. Conspectio is built with WebRTC and Socket.io.",
+  "version": "4.0.0",
+  "description": "Conspectio is a library developers can use to integrate scalable live streaming simulcasts without the need for additional servers. Conspectio is built on top of WebRTC and Socket.io.",
   "main": "index.js",
   "scripts": {
     "start": "nodemon demo/server/server.js",

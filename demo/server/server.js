@@ -3,7 +3,7 @@ const app = express();
 const http = require ('http').Server(app);
 const path = require('path');
 
-app.set('port', process.env.PORT || 3030);
+app.set('port', process.env.PORT || 3000);
 
 // require in conspectio npm package and invoke
 // const conspectioServer = require('conspectio');
