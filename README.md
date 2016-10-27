@@ -146,30 +146,32 @@ Constructor:
           broadcasterRemoved: function(videoDivId)
         }
 
-     1. The **noMoreBroadcasters** event handler function is invoked by conspectio when there are no more broadcasters for this event identifier.
 
-      a. This will be a good place to display an informative message or redirect to another page.
 
-     2. The **broadcasterAdded** event handler function is invoked by conspectio when there is a new broadcaster for this event identifier.
+  1. The **noMoreBroadcasters** event handler function is invoked by conspectio when there are no more broadcasters for this event identifier.
+   
+   a. This will be a good place to display an informative message or redirect to another page.
 
-      a. This event handler function takes in an argument of type HTML video element: this element has an unique conspectio value assigned to its id attribute **(please do not edit this).**
+  2. The **broadcasterAdded** event handler function is invoked by conspectio when there is a new broadcaster for this event identifier.
 
-      b. This will be a good place to append the passed in HTML video element to the DOM.
+   a. This event handler function takes in an argument of type HTML video element: this element has an unique conspectio value assigned to its id attribute **(please do not edit this).**
 
-   3. **The broadcasterRemoved** event handler function is invoked by conspectio when an existing broadcaster is removed for this event identifier.
+   b. This will be a good place to append the passed in HTML video element to the DOM.
+
+  3. **The broadcasterRemoved** event handler function is invoked by conspectio when an existing broadcaster is removed for this event identifier.
 
    a. This event handler function takes in an argument of type string that is the unique conspectio value assigned to the id attribute of HTML video element previously passed in for the **broadcasterAdded** event.
 
-  b. This will be a good place to remove the HTML video element in the DOM with the matched id attribute.
+   b. This will be a good place to remove the HTML video element in the DOM with the matched id attribute.
 
 
-4. **conspectio.ConspectioConnection.start()**
+  4. **conspectio.ConspectioConnection.start()**
 
- a. Invoke the **start()** method to open this peer entity connection endpoint.
+   a. Invoke the **start()** method to open this peer entity connection endpoint.
 
-5. **conspectio.ConspectioConnection.stop()**
+  5. **conspectio.ConspectioConnection.stop()**
 
- a. Invoke the **stop()** method to close this peer entity connection endpoint.
+   a. Invoke the **stop()** method to close this peer entity connection endpoint.
 
 ##Guide
 
