@@ -180,25 +180,34 @@ Constructor:
 
 2. Instantiate a broadcaster conspectio.ConspectioConnection() object and invoke start() on it (See the API for details)
 
- a. For example: 
+ a. 
 
- ```const conspectioConnectionBroadcaster = new conspectio.ConspectioConnection(eventId, 'broadcaster', 'broadcasterStream', null, null);```
+        const conspectioConnectionBroadcaster = new conspectio.ConspectioConnection(eventId, 'broadcaster', 'broadcasterStream', null, null);
 
  b. 
                 
- ```conspectioConnectionBroadcaster.start();```
+        conspectioConnectionBroadcaster.start();
 
  c. You should see that the HTML video element that you specified with the domId start showing the MediaStream from broadcaster client’s camera device.
 
 3. Instantiate a viewer conspectio.ConspectioConnection() object and invoke start() on it (See the API for details)
 
+ a.
 
- ```const conspectioConnectionViewer = new conspectio.ConspectioConnection(eventId, 'viewer', 'conspectioViewerContainer', viewerHandlers, null);```
+        const conspectioConnectionViewer = new conspectio.ConspectioConnection(eventId, 'viewer', 'conspectioViewerContainer', viewerHandlers, null);
 
- ```const viewerHandlers = { noMoreBroadcasters:          handleNoMoreBroadcasters, broadcasterAdded: handleBroadcasterAdded, broadcasterRemoved: handleBroadcasterRemoved };```
+ b.
 
+        const viewerHandlers = 
+                              { 
+                                noMoreBroadcasters: handleNoMoreBroadcasters,    
+                                broadcasterAdded: handleBroadcasterAdded, 
+                                broadcasterRemoved: handleBroadcasterRemoved 
+                              };
 
- ```conspectioConnectionViewer.start();```
+ c.
+
+        conspectioConnectionViewer.start();
 
 You should see a HTML video element appended to the div container that you specified showing the received broadcasted stream.
 
