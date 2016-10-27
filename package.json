@@ -1,6 +1,6 @@
 {
   "name": "conspectio",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "Conspectio is a library developers can use to integrate scalable live streaming simulcasts without the need for additional servers. Conspectio is built on top of WebRTC and Socket.io.",
   "main": "index.js",
   "scripts": {
