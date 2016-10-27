@@ -199,11 +199,11 @@ Constructor:
  b.
 
         const viewerHandlers = 
-                              { 
-                                noMoreBroadcasters: handleNoMoreBroadcasters,    
-                                broadcasterAdded: handleBroadcasterAdded, 
-                                broadcasterRemoved: handleBroadcasterRemoved 
-                              };
+          { 
+            noMoreBroadcasters: handleNoMoreBroadcasters,    
+            broadcasterAdded: handleBroadcasterAdded, 
+            broadcasterRemoved: handleBroadcasterRemoved 
+          };
 
  c.
 
