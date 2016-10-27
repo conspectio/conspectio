@@ -200,11 +200,15 @@ Constructor:
 
  ```conspectioConnectionViewer.start();```
 
-You should see a HTML video element appended to the div container that you specified showing the received broadcasted stream
+You should see a HTML video element appended to the div container that you specified showing the received broadcasted stream.
 
 ##Testing
 
 WebRTC requires HTTPS, so when testing in your local environment we recommend using [ngrok](https://ngrok.com/). 
+
+##Compatibility
+
+This version of conspectio has been tested on Google Chrome browsers and Chrome browsers on mobile Androids.
 
 ##Contributors
 
