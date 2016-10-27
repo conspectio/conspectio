@@ -4,6 +4,8 @@
 
 Conspectio is an open-source library for grouping multiple live stream broadcasts, and scaling viewers without the need for additional servers. Built on top of WebRTC -- used for realtime peer-to-peer video and audio communication in the browser --  Conspectio exceeds the number of concurrent viewers constrained by WebRTC.
 
+![pic](http://i.imgur.com/iUTpSP3.png)
+
 >We welcome and encourage any feedback to make Conspectio better for everyone. Thank you!
 
 ##Version
@@ -170,7 +172,7 @@ Constructor:
    a. Invoke the **start()** method to open this peer entity connection endpoint.
 
   5. **conspectio.ConspectioConnection.stop()**
-	
+
    a. Invoke the **stop()** method to close this peer entity connection endpoint.
 
 ##Guide
