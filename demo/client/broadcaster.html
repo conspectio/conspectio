@@ -12,7 +12,7 @@
 <body id ='broadcastbody'>
 
 	<div>
-    <a href = 'index.html'><button><span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+    <a href = 'index.html'><button class="homeBtn"><span class="glyphicon glyphicon-home" aria-hidden="true"></span>
 </button></a>
   </div>
 
@@ -23,7 +23,7 @@
       <div class="thumbnail">
         <div class="caption">
           <h2>Broadcast to the World!</h2>
-          <p>Add an event name and hit start!</p>
+          <div id="broadcastMsg">Add an event name and hit start!</div>
         </div>
         <div id="broadcasterinputs">
           <input id="eventTag" type="text" placeholder="tag your stream here">
@@ -31,8 +31,8 @@
           <input id="stopButton" class="btn btn-danger btn-sm" type="submit" value="stop" disabled="disabled">
         </div>
         <video id="broadcasterStream" autoplay muted></video>
-        <div id="broadcastMsg">
-        </div>
+        <!--<div id="broadcastMsg">
+        </div>-->
       </div>
     </div>
   </div>
