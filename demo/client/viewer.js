@@ -34,7 +34,7 @@ function handleNoMoreBroadcasters() {
 function handleBroadcasterAdded(newVideo) {
   console.log('handleBroadcasterAdded invoked, newVideo', newVideo);
 
-  const responsiveGrid = $('<div class = "col-xs-6"></div>');
+  const responsiveGrid = $('<div class = "col-xs-4"></div>');
   const videoDiv = $('<div class="videoDiv"></div>').append(newVideo);
   const responsiveGridvideoDivVideo = responsiveGrid.append(videoDiv);
 

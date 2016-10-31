@@ -13,6 +13,9 @@ function sendEventTag() {
     // required args: eventId, role, domId, viewHandler, RTCPeerConnection options
     conspectioConnectionObj = new conspectio.ConspectioConnection(eventTag, 'broadcaster', 'broadcasterStream', null, null);
     conspectioConnectionObj.start();
+    $('#broadcastMsg').empty();
+    $('#broadcastMsg').html(`<p>You are currently streaming to event #${eventTag}</p>`);
+    $('#eventTag').val('');
   } else {
     alert('please enter a tag name to start streaming');
   }
